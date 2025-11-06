@@ -1,9 +1,10 @@
-import type { FoodItem, IntakeEntry, DailyGoals } from "~/types";
+import type { FoodItem, IntakeEntry, DailyGoals, DietPreference } from "~/types";
 
 const STORAGE_KEYS = {
   FOODS: 'diet-tracker-foods',
   INTAKE: 'diet-tracker-intake',
   GOALS: 'diet-tracker-goals',
+  DIET_PREFERENCE: 'diet-tracker-diet-preference',
 };
 
 // Food Items
@@ -81,6 +82,16 @@ export const getGoals = (): DailyGoals => {
 
 export const saveGoals = (goals: DailyGoals): void => {
   localStorage.setItem(STORAGE_KEYS.GOALS, JSON.stringify(goals));
+};
+
+// Diet Preference
+export const getDietPreference = (): DietPreference => {
+  const data = localStorage.getItem(STORAGE_KEYS.DIET_PREFERENCE);
+  return data ? (JSON.parse(data) as DietPreference) : 'non-vegetarian';
+};
+
+export const saveDietPreference = (preference: DietPreference): void => {
+  localStorage.setItem(STORAGE_KEYS.DIET_PREFERENCE, JSON.stringify(preference));
 };
 
 // Utility

@@ -1,7 +1,7 @@
 import type { FoodItem } from "~/types";
 
 export const initialFoods: FoodItem[] = [
-  // Grains & Cereals
+  // Grains & Cereals - All VEG
   {
     id: 'rice-white-cooked',
     name: 'White Rice (cooked)',
@@ -9,6 +9,7 @@ export const initialFoods: FoodItem[] = [
     caloriesPer100g: 130,
     category: 'grains',
     isCustom: false,
+    foodType: 'veg',
   },
   {
     id: 'rice-brown-cooked',
@@ -17,6 +18,7 @@ export const initialFoods: FoodItem[] = [
     caloriesPer100g: 112,
     category: 'grains',
     isCustom: false,
+    foodType: 'veg',
   },
   {
     id: 'chapati-roti',
@@ -25,6 +27,7 @@ export const initialFoods: FoodItem[] = [
     caloriesPer100g: 297,
     category: 'grains',
     isCustom: false,
+    foodType: 'veg',
   },
   {
     id: 'bread-white',
@@ -33,6 +36,7 @@ export const initialFoods: FoodItem[] = [
     caloriesPer100g: 266,
     category: 'grains',
     isCustom: false,
+    foodType: 'veg',
   },
   {
     id: 'paratha',
@@ -41,6 +45,7 @@ export const initialFoods: FoodItem[] = [
     caloriesPer100g: 320,
     category: 'grains',
     isCustom: false,
+    foodType: 'veg',
   },
   {
     id: 'idli',
@@ -49,6 +54,7 @@ export const initialFoods: FoodItem[] = [
     caloriesPer100g: 106,
     category: 'grains',
     isCustom: false,
+    foodType: 'veg',
   },
   {
     id: 'dosa',
@@ -57,9 +63,10 @@ export const initialFoods: FoodItem[] = [
     caloriesPer100g: 168,
     category: 'grains',
     isCustom: false,
+    foodType: 'veg',
   },
 
-  // Lentils & Legumes (all cooked values)
+  // Lentils & Legumes (all cooked values) - All VEG
   {
     id: 'moong-dal-cooked',
     name: 'Moong Dal (cooked)',
@@ -67,6 +74,7 @@ export const initialFoods: FoodItem[] = [
     caloriesPer100g: 105,
     category: 'legumes',
     isCustom: false,
+    foodType: 'veg',
   },
   {
     id: 'toor-dal-cooked',
@@ -75,6 +83,7 @@ export const initialFoods: FoodItem[] = [
     caloriesPer100g: 108,
     category: 'legumes',
     isCustom: false,
+    foodType: 'veg',
   },
   {
     id: 'chana-dal-cooked',
@@ -83,6 +92,7 @@ export const initialFoods: FoodItem[] = [
     caloriesPer100g: 120,
     category: 'legumes',
     isCustom: false,
+    foodType: 'veg',
   },
   {
     id: 'rajma-cooked',
@@ -91,6 +101,7 @@ export const initialFoods: FoodItem[] = [
     caloriesPer100g: 127,
     category: 'legumes',
     isCustom: false,
+    foodType: 'veg',
   },
   {
     id: 'chickpeas-cooked',
@@ -99,6 +110,7 @@ export const initialFoods: FoodItem[] = [
     caloriesPer100g: 164,
     category: 'legumes',
     isCustom: false,
+    foodType: 'veg',
   },
   {
     id: 'black-dal-cooked',
@@ -107,9 +119,10 @@ export const initialFoods: FoodItem[] = [
     caloriesPer100g: 105,
     category: 'legumes',
     isCustom: false,
+    foodType: 'veg',
   },
 
-  // Dairy
+  // Dairy - All VEG
   {
     id: 'milk-full-fat',
     name: 'Milk (full fat, whole)',
@@ -117,6 +130,7 @@ export const initialFoods: FoodItem[] = [
     caloriesPer100g: 61,
     category: 'dairy',
     isCustom: false,
+    foodType: 'veg',
   },
   {
     id: 'milk-toned',
@@ -125,6 +139,7 @@ export const initialFoods: FoodItem[] = [
     caloriesPer100g: 47,
     category: 'dairy',
     isCustom: false,
+    foodType: 'veg',
   },
   {
     id: 'paneer',
@@ -133,6 +148,7 @@ export const initialFoods: FoodItem[] = [
     caloriesPer100g: 296,
     category: 'dairy',
     isCustom: false,
+    foodType: 'veg',
   },
   {
     id: 'curd-yogurt',
@@ -141,6 +157,7 @@ export const initialFoods: FoodItem[] = [
     caloriesPer100g: 61,
     category: 'dairy',
     isCustom: false,
+    foodType: 'veg',
   },
   {
     id: 'ghee',
@@ -149,6 +166,7 @@ export const initialFoods: FoodItem[] = [
     caloriesPer100g: 900,
     category: 'dairy',
     isCustom: false,
+    foodType: 'veg',
   },
   {
     id: 'butter',
@@ -157,9 +175,10 @@ export const initialFoods: FoodItem[] = [
     caloriesPer100g: 717,
     category: 'dairy',
     isCustom: false,
+    foodType: 'veg',
   },
 
-  // Meat & Poultry (all cooked without skin unless specified)
+  // Meat & Poultry
   {
     id: 'chicken-breast-cooked',
     name: 'Chicken Breast (cooked, skinless)',
@@ -167,6 +186,7 @@ export const initialFoods: FoodItem[] = [
     caloriesPer100g: 165,
     category: 'protein',
     isCustom: false,
+    foodType: 'non-veg',
   },
   {
     id: 'chicken-thigh-cooked',
@@ -175,6 +195,7 @@ export const initialFoods: FoodItem[] = [
     caloriesPer100g: 209,
     category: 'protein',
     isCustom: false,
+    foodType: 'non-veg',
   },
   {
     id: 'egg-whole',
@@ -183,6 +204,7 @@ export const initialFoods: FoodItem[] = [
     caloriesPer100g: 155,
     category: 'protein',
     isCustom: false,
+    foodType: 'egg',
   },
   {
     id: 'egg-white',
@@ -191,6 +213,7 @@ export const initialFoods: FoodItem[] = [
     caloriesPer100g: 52,
     category: 'protein',
     isCustom: false,
+    foodType: 'egg',
   },
   {
     id: 'fish-cooked',
@@ -199,6 +222,7 @@ export const initialFoods: FoodItem[] = [
     caloriesPer100g: 136,
     category: 'protein',
     isCustom: false,
+    foodType: 'non-veg',
   },
   {
     id: 'mutton-cooked',
@@ -207,6 +231,7 @@ export const initialFoods: FoodItem[] = [
     caloriesPer100g: 258,
     category: 'protein',
     isCustom: false,
+    foodType: 'non-veg',
   },
   {
     id: 'prawns-cooked',
@@ -215,9 +240,10 @@ export const initialFoods: FoodItem[] = [
     caloriesPer100g: 99,
     category: 'protein',
     isCustom: false,
+    foodType: 'non-veg',
   },
 
-  // Vegetables (mostly raw unless specified)
+  // Vegetables (mostly raw unless specified) - All VEG
   {
     id: 'potato-boiled',
     name: 'Potato (boiled without salt)',
@@ -225,6 +251,7 @@ export const initialFoods: FoodItem[] = [
     caloriesPer100g: 87,
     category: 'vegetables',
     isCustom: false,
+    foodType: 'veg',
   },
   {
     id: 'sweet-potato-boiled',
@@ -233,6 +260,7 @@ export const initialFoods: FoodItem[] = [
     caloriesPer100g: 90,
     category: 'vegetables',
     isCustom: false,
+    foodType: 'veg',
   },
   {
     id: 'spinach-cooked',
@@ -241,6 +269,7 @@ export const initialFoods: FoodItem[] = [
     caloriesPer100g: 23,
     category: 'vegetables',
     isCustom: false,
+    foodType: 'veg',
   },
   {
     id: 'tomato',
@@ -249,6 +278,7 @@ export const initialFoods: FoodItem[] = [
     caloriesPer100g: 18,
     category: 'vegetables',
     isCustom: false,
+    foodType: 'veg',
   },
   {
     id: 'onion',
@@ -257,6 +287,7 @@ export const initialFoods: FoodItem[] = [
     caloriesPer100g: 40,
     category: 'vegetables',
     isCustom: false,
+    foodType: 'veg',
   },
   {
     id: 'carrot',
@@ -265,6 +296,7 @@ export const initialFoods: FoodItem[] = [
     caloriesPer100g: 41,
     category: 'vegetables',
     isCustom: false,
+    foodType: 'veg',
   },
   {
     id: 'broccoli',
@@ -273,6 +305,7 @@ export const initialFoods: FoodItem[] = [
     caloriesPer100g: 34,
     category: 'vegetables',
     isCustom: false,
+    foodType: 'veg',
   },
   {
     id: 'cauliflower',
@@ -281,6 +314,7 @@ export const initialFoods: FoodItem[] = [
     caloriesPer100g: 25,
     category: 'vegetables',
     isCustom: false,
+    foodType: 'veg',
   },
   {
     id: 'cabbage',
@@ -289,6 +323,7 @@ export const initialFoods: FoodItem[] = [
     caloriesPer100g: 25,
     category: 'vegetables',
     isCustom: false,
+    foodType: 'veg',
   },
   {
     id: 'green-peas',
@@ -297,9 +332,10 @@ export const initialFoods: FoodItem[] = [
     caloriesPer100g: 81,
     category: 'vegetables',
     isCustom: false,
+    foodType: 'veg',
   },
 
-  // Fruits (all raw)
+  // Fruits (all raw) - All VEG
   {
     id: 'banana',
     name: 'Banana (raw)',
@@ -307,6 +343,7 @@ export const initialFoods: FoodItem[] = [
     caloriesPer100g: 89,
     category: 'fruits',
     isCustom: false,
+    foodType: 'veg',
   },
   {
     id: 'apple',
@@ -315,6 +352,7 @@ export const initialFoods: FoodItem[] = [
     caloriesPer100g: 52,
     category: 'fruits',
     isCustom: false,
+    foodType: 'veg',
   },
   {
     id: 'mango',
@@ -323,6 +361,7 @@ export const initialFoods: FoodItem[] = [
     caloriesPer100g: 60,
     category: 'fruits',
     isCustom: false,
+    foodType: 'veg',
   },
   {
     id: 'orange',
@@ -331,6 +370,7 @@ export const initialFoods: FoodItem[] = [
     caloriesPer100g: 47,
     category: 'fruits',
     isCustom: false,
+    foodType: 'veg',
   },
   {
     id: 'papaya',
@@ -339,6 +379,7 @@ export const initialFoods: FoodItem[] = [
     caloriesPer100g: 43,
     category: 'fruits',
     isCustom: false,
+    foodType: 'veg',
   },
   {
     id: 'watermelon',
@@ -347,9 +388,10 @@ export const initialFoods: FoodItem[] = [
     caloriesPer100g: 30,
     category: 'fruits',
     isCustom: false,
+    foodType: 'veg',
   },
 
-  // Nuts & Seeds (all raw unless specified)
+  // Nuts & Seeds (all raw unless specified) - All VEG
   {
     id: 'almonds',
     name: 'Almonds (raw)',
@@ -357,6 +399,7 @@ export const initialFoods: FoodItem[] = [
     caloriesPer100g: 579,
     category: 'nuts',
     isCustom: false,
+    foodType: 'veg',
   },
   {
     id: 'peanuts',
@@ -365,6 +408,7 @@ export const initialFoods: FoodItem[] = [
     caloriesPer100g: 567,
     category: 'nuts',
     isCustom: false,
+    foodType: 'veg',
   },
   {
     id: 'peanuts-soaked',
@@ -373,6 +417,7 @@ export const initialFoods: FoodItem[] = [
     caloriesPer100g: 400,
     category: 'nuts',
     isCustom: false,
+    foodType: 'veg',
   },
   {
     id: 'cashews',
@@ -381,6 +426,7 @@ export const initialFoods: FoodItem[] = [
     caloriesPer100g: 553,
     category: 'nuts',
     isCustom: false,
+    foodType: 'veg',
   },
   {
     id: 'walnuts',
@@ -389,6 +435,7 @@ export const initialFoods: FoodItem[] = [
     caloriesPer100g: 654,
     category: 'nuts',
     isCustom: false,
+    foodType: 'veg',
   },
   {
     id: 'chia-seeds',
@@ -397,9 +444,10 @@ export const initialFoods: FoodItem[] = [
     caloriesPer100g: 486,
     category: 'nuts',
     isCustom: false,
+    foodType: 'veg',
   },
 
-  // Others
+  // Others - All VEG
   {
     id: 'oats',
     name: 'Oats (raw, rolled)',
@@ -407,6 +455,7 @@ export const initialFoods: FoodItem[] = [
     caloriesPer100g: 389,
     category: 'grains',
     isCustom: false,
+    foodType: 'veg',
   },
   {
     id: 'oats-cooked',
@@ -415,6 +464,7 @@ export const initialFoods: FoodItem[] = [
     caloriesPer100g: 71,
     category: 'grains',
     isCustom: false,
+    foodType: 'veg',
   },
   {
     id: 'quinoa-cooked',
@@ -423,5 +473,6 @@ export const initialFoods: FoodItem[] = [
     caloriesPer100g: 120,
     category: 'grains',
     isCustom: false,
+    foodType: 'veg',
   },
 ];

@@ -1,6 +1,7 @@
 import { Trash2 } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Badge } from "~/components/ui/badge";
+import { FoodTypeIndicator } from "~/components/ui/food-type-indicator";
 import type { FoodItem } from "~/types";
 
 interface FoodListProps {
@@ -40,6 +41,7 @@ export function FoodList({ foods, onDelete, searchQuery }: FoodListProps) {
         >
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1">
+              <FoodTypeIndicator foodType={food.foodType} size="sm" />
               <span className="font-medium">{food.name}</span>
               {food.isCustom && (
                 <Badge variant="secondary" className="text-xs">

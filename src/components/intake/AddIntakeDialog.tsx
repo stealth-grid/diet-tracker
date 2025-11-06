@@ -19,6 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
+import { FoodTypeIndicator } from "~/components/ui/food-type-indicator";
 import type { FoodItem, IntakeEntry } from "~/types";
 import { getTodayDate } from "~/lib/storage";
 
@@ -47,6 +48,7 @@ export function AddIntakeDialog({ foods, onAdd, onAddNewFood }: AddIntakeDialogP
       calories: (food.caloriesPer100g * quantityNum) / 100,
       date: getTodayDate(),
       timestamp: Date.now(),
+      foodType: food.foodType,
     };
 
     onAdd(entry);
@@ -85,7 +87,10 @@ export function AddIntakeDialog({ foods, onAdd, onAddNewFood }: AddIntakeDialogP
               <SelectContent>
                 {foods.map((food) => (
                   <SelectItem key={food.id} value={food.id}>
-                    {food.name}
+                    <div className="flex items-center gap-2">
+                      <FoodTypeIndicator foodType={food.foodType} size="sm" />
+                      <span>{food.name}</span>
+                    </div>
                   </SelectItem>
                 ))}
               </SelectContent>

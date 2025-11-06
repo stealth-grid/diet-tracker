@@ -17,10 +17,35 @@ A minimal and clean diet tracking application built with React, TypeScript, Vite
 - **Add Custom Foods**: Add your own food items with nutritional info
 - **Manage Foods**: Edit and delete custom food items
 
-### ⚙️ Goals Setting
-- Set daily calorie and protein targets
-- Visual progress tracking with color indicators
-- Persistent storage of goals
+### 🍽️ Meal Planner
+- **Smart Meal Suggestions**: AI-powered meal plan generator
+- **Meets Your Goals**: Automatically calculates meals to hit your daily targets
+- **Balanced Distribution**: Breaks down into Breakfast, Lunch, Dinner, and Snacks
+- **Calorie Breakdown**: See exact calories and protein for each food item
+- **Multiple Variations**: Generate new plans with one click
+- **Category-Based**: Suggests appropriate foods for each meal time
+- **Portion Sizes**: Recommends realistic quantities (20g-500g)
+- **Diet-Aware**: Respects your dietary preference (veg/egg/non-veg)
+
+### 🥗 Diet Preference & Food Indicators (NEW!)
+- **Indian Food Standard**: Color-coded indicators on all food items
+  - 🟢 **Green** = Vegetarian
+  - 🟤 **Amber** = Contains Egg (Eggetarian)
+  - 🔴 **Red** = Non-Vegetarian
+- **Smart Filtering**: 
+  - Vegetarian mode shows only veg foods
+  - Eggetarian mode shows veg + egg
+  - Non-vegetarian mode shows all foods
+- **Visual Consistency**: Indicators appear throughout the app (food list, intake log, meal planner, dropdowns)
+- **Custom Food Support**: Set diet type when adding custom foods
+- **Persistent Preference**: Your choice is saved and applied everywhere
+
+### ⚙️ Settings
+- **Daily Goals**: Set calorie and protein targets
+- **Diet Preference**: Choose vegetarian, eggetarian, or non-vegetarian
+- **Data Management**: Import/export your complete data
+- **Visual Progress**: Color-coded progress bars
+- **Persistent Storage**: All settings saved locally
 
 ## Tech Stack
 
@@ -70,27 +95,38 @@ npm run preview
 ```
 src/
 ├── components/
-│   ├── intake/          # Food intake tracking components
-│   ├── database/        # Food database management
-│   ├── goals/           # Goals setting dialog
-│   └── ui/              # shadcn/ui components
+│   ├── intake/              # Food intake tracking components
+│   ├── database/            # Food database management
+│   ├── planner/             # Meal planner component
+│   ├── settings/            # Settings dialog (goals, diet, data)
+│   └── ui/                  # shadcn/ui components
+│       └── food-type-indicator.tsx  # Food type visual indicator
 ├── lib/
-│   ├── utils.ts         # Utility functions
-│   └── storage.ts       # LocalStorage helpers
+│   ├── utils.ts             # Utility functions
+│   ├── storage.ts           # LocalStorage helpers
+│   └── dataManagement.ts    # Import/export functionality
 ├── data/
-│   └── initialFoods.ts  # Pre-populated food database
+│   └── initialFoods.ts      # Pre-populated food database (51 items)
 ├── types/
-│   └── index.ts         # TypeScript interfaces
-├── App.tsx              # Main app component
-└── main.tsx             # Entry point
+│   └── index.ts             # TypeScript interfaces (FoodType, DietPreference, etc.)
+├── App.tsx                  # Main app component
+└── main.tsx                 # Entry point
 ```
 
 ## Data Storage
 
 All data is stored locally in your browser using LocalStorage:
-- **Food Items**: Custom and pre-populated food database
-- **Intake Entries**: All food intake records with dates
+- **Food Items**: Custom and pre-populated food database (with food type: veg/egg/non-veg)
+- **Intake Entries**: All food intake records with dates and food type indicators
 - **Goals**: Daily calorie and protein targets
+- **Diet Preference**: Your chosen dietary restriction (vegetarian/eggetarian/non-vegetarian)
+
+**Data Portability**: 
+- Export your data anytime as a JSON file (includes all settings and preferences)
+- Import data on a different device or browser
+- Share your food database with others
+- Keep backups for safety
+- Backward compatible with older exports
 
 ## Pre-populated Foods
 
@@ -132,14 +168,67 @@ All nutritional values are per 100g serving.
 
 ### Setting Goals
 1. Click the settings icon in the header
-2. Set your daily calorie goal
-3. Set your daily protein goal
-4. Goals are saved automatically
+2. Go to the "Goals" tab
+3. Set your daily calorie goal
+4. Set your daily protein goal
+5. Click "Save Goals"
+
+### Backup & Restore Data
+The app includes powerful data management features to backup and restore your data:
+
+#### Export Data (Backup)
+1. Click the settings icon in the header
+2. Go to the "Data Management" tab
+3. Click "Download Backup"
+4. A JSON file will be downloaded with all your data:
+   - All food items (custom and pre-populated)
+   - All intake records
+   - Your goals
+   - Export date and version info
+
+#### Import Data (Restore)
+1. Click the settings icon in the header
+2. Go to the "Data Management" tab
+3. Choose import mode:
+   - **Merge**: Add new items to existing data (keeps everything, no duplicates)
+   - **Replace**: Delete all existing data and import new (⚠️ Use with caution)
+4. Click "Choose File to Import"
+5. Select your previously exported JSON file
+6. Data will be validated and imported
+
+**Import Validation**: The app validates all imported data to ensure:
+- ✅ Correct JSON structure
+- ✅ Valid food items
+- ✅ Valid intake entries
+- ✅ Valid goals
+- ✅ Proper data types
+
+**Safety Features**:
+- Automatic validation before import
+- Clear error messages if validation fails
+- Warning messages for non-critical issues
+- Duplicate prevention in merge mode
 
 ### Viewing History
 - Use the date selector to view past days
 - See all entries for that day
 - View daily totals and progress
+
+### Using Meal Planner
+1. Go to the "Meal Planner" tab
+2. View the automatically generated meal plan based on your goals
+3. See suggested meals broken down into:
+   - **Breakfast** (25% of calories, 20% of protein)
+   - **Lunch** (35% of calories, 35% of protein)
+   - **Dinner** (30% of calories, 35% of protein)
+   - **Snacks** (10% of calories, 10% of protein)
+4. Each food item shows:
+   - Food name
+   - Quantity in grams
+   - Calories
+   - Protein content
+5. Click "Generate New Plan" to see different combinations
+6. Use the suggestions to plan your day or log intake from the plan
 
 ## Design Philosophy
 

@@ -1,6 +1,7 @@
 import { Trash2, Clock } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import { FoodTypeIndicator } from "~/components/ui/food-type-indicator";
 import type { IntakeEntry } from "~/types";
 
 interface IntakeListProps {
@@ -39,7 +40,10 @@ export function IntakeList({ entries, onDelete }: IntakeListProps) {
               className="flex items-center justify-between p-3 rounded-lg border bg-card"
             >
               <div className="flex-1">
-                <div className="font-medium">{entry.foodName}</div>
+                <div className="flex items-center gap-2 font-medium">
+                  {entry.foodType && <FoodTypeIndicator foodType={entry.foodType} size="sm" />}
+                  {entry.foodName}
+                </div>
                 <div className="text-sm text-muted-foreground">
                   {entry.quantity}g • {entry.calories.toFixed(0)} kcal • {entry.protein.toFixed(1)}g protein
                 </div>

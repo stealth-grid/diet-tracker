@@ -12,7 +12,15 @@ import {
 } from "~/components/ui/dialog";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
-import type { FoodItem } from "~/types";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
+import { FoodTypeIndicator } from "~/components/ui/food-type-indicator";
+import type { FoodItem, FoodType } from "~/types";
 
 interface AddFoodDialogProps {
   onAdd: (food: FoodItem) => void;
@@ -26,6 +34,7 @@ export function AddFoodDialog({ onAdd, open: controlledOpen, onOpenChange }: Add
   const [protein, setProtein] = useState("");
   const [calories, setCalories] = useState("");
   const [category, setCategory] = useState("");
+  const [foodType, setFoodType] = useState<FoodType>('veg');
 
   const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
   const setOpen = onOpenChange || setInternalOpen;
@@ -40,6 +49,7 @@ export function AddFoodDialog({ onAdd, open: controlledOpen, onOpenChange }: Add
       caloriesPer100g: Number(calories),
       category: category.trim() || "custom",
       isCustom: true,
+      foodType: foodType,
     };
 
     onAdd(food);
@@ -47,6 +57,7 @@ export function AddFoodDialog({ onAdd, open: controlledOpen, onOpenChange }: Add
     setProtein("");
     setCalories("");
     setCategory("");
+    setFoodType('veg');
     setOpen(false);
   };
 
@@ -105,6 +116,34 @@ export function AddFoodDialog({ onAdd, open: controlledOpen, onOpenChange }: Add
               value={category}
               onChange={(e) => setCategory(e.target.value)}
             />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="food-type">Food Type *</Label>
+            <Select value={foodType} onValueChange={(value) => setFoodType(value as FoodType)}>
+              <SelectTrigger id="food-type">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="veg">
+                  <div className="flex items-center gap-2">
+                    <FoodTypeIndicator foodType="veg" size="sm" />
+                    <span>Vegetarian</span>
+                  </div>
+                </SelectItem>
+                <SelectItem value="egg">
+                  <div className="flex items-center gap-2">
+                    <FoodTypeIndicator foodType="egg" size="sm" />
+                    <span>Contains Egg</span>
+                  </div>
+                </SelectItem>
+                <SelectItem value="non-veg">
+                  <div className="flex items-center gap-2">
+                    <FoodTypeIndicator foodType="non-veg" size="sm" />
+                    <span>Non-Vegetarian</span>
+                  </div>
+                </SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
         <DialogFooter>

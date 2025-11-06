@@ -3,21 +3,25 @@ import { Utensils } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { IntakeTracker } from "~/components/intake/IntakeTracker";
 import { FoodDatabase } from "~/components/database/FoodDatabase";
-import { GoalsDialog } from "~/components/goals/GoalsDialog";
-import type { FoodItem, DailyGoals } from "~/types";
+import { MealPlanner } from "~/components/planner/MealPlanner";
+import { SettingsDialog } from "~/components/settings/SettingsDialog";
+import type { FoodItem, DailyGoals, DietPreference, FoodType } from "~/types";
 import { 
   getFoods, 
   saveFoods, 
   addFood, 
   deleteFood,
   getGoals,
-  saveGoals 
+  saveGoals,
+  getDietPreference,
+  saveDietPreference
 } from "~/lib/storage";
 import { initialFoods } from "~/data/initialFoods";
 
 function App() {
   const [foods, setFoods] = useState<FoodItem[]>([]);
   const [goals, setGoals] = useState<DailyGoals>({ calorieGoal: 2000, proteinGoal: 50 });
+  const [dietPreference, setDietPreference] = useState<DietPreference>('non-vegetarian');
   const [openAddFoodDialog, setOpenAddFoodDialog] = useState(false);
   const [entriesVersion, setEntriesVersion] = useState(0);
   const [activeTab, setActiveTab] = useState("intake");
@@ -37,12 +41,28 @@ function App() {
         storedFoods = [...storedFoods, ...newFoods];
         saveFoods(storedFoods);
       }
+      
+      // Migration: Add foodType to existing foods that don't have it
+      const needsMigration = storedFoods.some(f => !f.foodType);
+      if (needsMigration) {
+        storedFoods = storedFoods.map(food => {
+          if (!food.foodType) {
+            return { ...food, foodType: 'veg' as FoodType }; // Default to veg
+          }
+          return food;
+        });
+        saveFoods(storedFoods);
+      }
     }
     setFoods(storedFoods);
 
     // Load goals
     const storedGoals = getGoals();
     setGoals(storedGoals);
+    
+    // Load diet preference
+    const storedPreference = getDietPreference();
+    setDietPreference(storedPreference);
   }, []);
 
   const handleAddFood = (food: FoodItem) => {
@@ -60,6 +80,11 @@ function App() {
     setGoals(newGoals);
   };
 
+  const handleSaveDietPreference = (preference: DietPreference) => {
+    saveDietPreference(preference);
+    setDietPreference(preference);
+  };
+
   const handleOpenAddNewFood = () => {
     // Switch to Food Database tab and open Add Food dialog
     setActiveTab("database");
@@ -70,6 +95,17 @@ function App() {
     setEntriesVersion(v => v + 1);
   };
 
+  const handleDataImported = () => {
+    // Reload all data after import
+    const storedFoods = getFoods();
+    const storedGoals = getGoals();
+    const storedPreference = getDietPreference();
+    setFoods(storedFoods);
+    setGoals(storedGoals);
+    setDietPreference(storedPreference);
+    setEntriesVersion(v => v + 1); // Trigger intake tracker refresh
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <header className="border-b bg-background p-4 mb-8">
@@ -78,14 +114,21 @@ function App() {
             <Utensils className="h-6 w-6" />
             <h1 className="text-xl font-bold text-foreground">Diet Tracker</h1>
           </div>
-          <GoalsDialog goals={goals} onSave={handleSaveGoals} />
+          <SettingsDialog 
+            goals={goals}
+            dietPreference={dietPreference}
+            onSave={handleSaveGoals}
+            onSaveDietPreference={handleSaveDietPreference}
+            onDataImported={handleDataImported}
+          />
         </div>
       </header>
 
       <main className="flex-grow container mx-auto p-4 max-w-5xl">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-8">
+          <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-3 mb-8">
             <TabsTrigger value="intake">Track Intake</TabsTrigger>
+            <TabsTrigger value="planner">Meal Planner</TabsTrigger>
             <TabsTrigger value="database">Food Database</TabsTrigger>
           </TabsList>
 
@@ -95,6 +138,14 @@ function App() {
               goals={goals} 
               onAddNewFood={handleOpenAddNewFood}
               onEntriesChange={handleEntriesChange}
+            />
+          </TabsContent>
+
+          <TabsContent value="planner" className="mt-0">
+            <MealPlanner 
+              foods={foods} 
+              goals={goals}
+              dietPreference={dietPreference}
             />
           </TabsContent>
 
