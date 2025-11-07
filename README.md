@@ -2,7 +2,20 @@
 
 A minimal and clean diet tracking application built with React, TypeScript, Vite, and shadcn/ui.
 
+**🔐 Secure Google Sign-In** - User authentication powered by Google Identity Services
+
+## ⚡ Quick Start
+
+**New to the app?** See [QUICK-START.md](./QUICK-START.md) for a 5-minute setup guide with Google Sign-In!
+
 ## Features
+
+### 🔐 Authentication
+- **Google Sign-In**: Secure authentication with your Google account
+- **User Profiles**: Your profile picture and name displayed in the header
+- **Session Management**: Stay logged in across sessions
+- **Sign Out**: Easy sign-out from user menu
+- **Protected App**: Only authenticated users can access the app
 
 ### 🍽️ Track Intake
 - **Date Selection**: View and track intake for any date
@@ -52,6 +65,7 @@ A minimal and clean diet tracking application built with React, TypeScript, Vite
 - **Frontend**: React 19
 - **Language**: TypeScript
 - **Build Tool**: Vite
+- **Authentication**: Google Identity Services (Google OAuth 2.0)
 - **UI Components**: shadcn/ui (Radix UI)
 - **Styling**: Tailwind CSS v3
 - **Icons**: Lucide React
@@ -62,6 +76,8 @@ A minimal and clean diet tracking application built with React, TypeScript, Vite
 ### Prerequisites
 - Node.js 20.19+ or 22.12+
 - npm or yarn
+- Google account (for authentication)
+- Google Cloud Console project (free)
 
 ### Installation
 
@@ -75,33 +91,61 @@ cd diet-tracker
 npm install
 ```
 
-3. Start the development server:
+3. **Set up Google Authentication** (Required for Google Sign-In):
+   - See [QUICK-START.md](./QUICK-START.md) for a 5-minute setup guide
+   - Or see [GOOGLE-AUTH-SETUP.md](./GOOGLE-AUTH-SETUP.md) for detailed instructions
+   - Create a `.env` file with your Google OAuth Client ID
+
+4. Start the development server:
 ```bash
 npm run dev
 ```
 
-4. Build for production:
+5. Open http://localhost:5173 and sign in with your Google account
+
+6. Build for production:
 ```bash
 npm run build
 ```
 
-5. Preview production build:
+7. Preview production build:
 ```bash
 npm run preview
 ```
+
+### Environment Variables
+
+Create a `.env` file in the project root (see `.env.example`):
+```env
+VITE_GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
+```
+
+**Important**: Never commit your `.env` file to version control!
+
+**Why Google Identity Services?**
+- ✅ Simpler than Firebase (just 1 environment variable!)
+- ✅ Official Google authentication library
+- ✅ No Firebase dependencies needed
+- ✅ Direct OAuth 2.0 integration
+- ✅ Lighter and faster
 
 ## Project Structure
 
 ```
 src/
 ├── components/
+│   ├── auth/                # Authentication components
+│   │   └── LoginPage.tsx    # Google Sign-In page
 │   ├── intake/              # Food intake tracking components
 │   ├── database/            # Food database management
 │   ├── planner/             # Meal planner component
-│   ├── settings/            # Settings dialog (goals, diet, data)
+│   ├── settings/            # Settings dialog (goals, diet, data, food prefs)
 │   └── ui/                  # shadcn/ui components
 │       └── food-type-indicator.tsx  # Food type visual indicator
+├── contexts/
+│   └── AuthContext.tsx      # Authentication context provider
 ├── lib/
+│   ├── googleAuth.ts        # Google Identity Services configuration
 │   ├── utils.ts             # Utility functions
 │   ├── storage.ts           # LocalStorage helpers
 │   └── dataManagement.ts    # Import/export functionality

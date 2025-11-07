@@ -1,10 +1,21 @@
 import { useState, useEffect } from "react";
-import { Utensils } from "lucide-react";
+import { Utensils, LogOut, User as UserIcon, Loader2 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import { Button } from "~/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu";
 import { IntakeTracker } from "~/components/intake/IntakeTracker";
 import { FoodDatabase } from "~/components/database/FoodDatabase";
 import { MealPlanner } from "~/components/planner/MealPlanner";
 import { SettingsDialog } from "~/components/settings/SettingsDialog";
+import { LoginPage } from "~/components/auth/LoginPage";
+import { useAuth } from "~/contexts/AuthContext";
 import type { FoodItem, DailyGoals, DietPreference, FoodType } from "~/types";
 import { 
   getFoods, 
@@ -21,6 +32,7 @@ import {
 import { initialFoods } from "~/data/initialFoods";
 
 function App() {
+  const { user, loading, signOut } = useAuth();
   const [foods, setFoods] = useState<FoodItem[]>([]);
   const [goals, setGoals] = useState<DailyGoals>({ calorieGoal: 2000, proteinGoal: 50 });
   const [dietPreference, setDietPreference] = useState<DietPreference>('non-vegetarian');
@@ -29,6 +41,7 @@ function App() {
   const [entriesVersion, setEntriesVersion] = useState(0);
   const [activeTab, setActiveTab] = useState("intake");
 
+  // All hooks must be called before any conditional returns!
   useEffect(() => {
     // Initialize foods from localStorage or use initial data
     let storedFoods = getFoods();
@@ -73,7 +86,24 @@ function App() {
     // Load preferred foods
     const storedPreferredFoods = getPreferredFoodIds();
     setPreferredFoodIds(storedPreferredFoods);
-  }, []);
+  }, [user]); // Re-run when user changes (logs in/out)
+
+  // Show loading screen while checking authentication
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-primary" />
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show login page if not authenticated
+  if (!user) {
+    return <LoginPage />;
+  }
 
   const handleAddFood = (food: FoodItem) => {
     addFood(food);
@@ -131,16 +161,50 @@ function App() {
             <Utensils className="h-6 w-6" />
             <h1 className="text-xl font-bold text-foreground">Diet Tracker</h1>
           </div>
-          <SettingsDialog 
-            foods={foods}
-            goals={goals}
-            dietPreference={dietPreference}
-            preferredFoodIds={preferredFoodIds}
-            onSave={handleSaveGoals}
-            onSaveDietPreference={handleSaveDietPreference}
-            onSavePreferredFoods={handleSavePreferredFoods}
-            onDataImported={handleDataImported}
-          />
+          <div className="flex items-center gap-3">
+            <SettingsDialog 
+              foods={foods}
+              goals={goals}
+              dietPreference={dietPreference}
+              preferredFoodIds={preferredFoodIds}
+              onSave={handleSaveGoals}
+              onSaveDietPreference={handleSaveDietPreference}
+              onSavePreferredFoods={handleSavePreferredFoods}
+              onDataImported={handleDataImported}
+            />
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="rounded-full">
+                  {user.photoURL ? (
+                    <img 
+                      src={user.photoURL} 
+                      alt={user.displayName || 'User'} 
+                      className="h-8 w-8 rounded-full"
+                    />
+                  ) : (
+                    <UserIcon className="h-4 w-4" />
+                  )}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel>
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium leading-none">
+                      {user.displayName || 'User'}
+                    </p>
+                    <p className="text-xs leading-none text-muted-foreground">
+                      {user.email}
+                    </p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => signOut()} className="text-red-600 cursor-pointer">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Sign out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
       </header>
 
