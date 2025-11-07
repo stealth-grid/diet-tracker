@@ -66,3 +66,44 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Mobile scroll and keyboard fixes */
+@layer utilities {
+  /* Prevent viewport issues on mobile when keyboard appears */
+  html {
+    height: 100%;
+    overflow: hidden;
+  }
+  
+  body {
+    height: 100%;
+    overflow: auto;
+    /* Improve scrolling on iOS */
+    -webkit-overflow-scrolling: touch;
+    /* Prevent pull-to-refresh on some browsers */
+    overscroll-behavior-y: contain;
+  }
+  
+  #root {
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* Better touch scrolling for mobile */
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  /* Ensure inputs are visible when keyboard appears */
+  input, textarea, select {
+    font-size: 16px !important; /* Prevents iOS zoom on focus */
+  }
+  
+  /* Better mobile keyboard handling */
+  @supports (height: 100dvh) {
+    #root {
+      min-height: 100dvh;
+    }
+  }
+}

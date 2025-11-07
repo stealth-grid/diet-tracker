@@ -91,7 +91,7 @@ function App() {
   // Show loading screen while checking authentication
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="h-screen flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-primary" />
           <p className="text-muted-foreground">Loading...</p>
@@ -154,8 +154,8 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <header className="border-b bg-background p-4 mb-8">
+    <>
+      <header className="border-b bg-background p-4 mb-8 sticky top-0 z-10">
         <div className="container mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Utensils className="h-6 w-6" />
@@ -256,7 +256,7 @@ function App() {
           </p>
         </div>
       </footer>
-    </div>
+    </>
   );
 }
 
