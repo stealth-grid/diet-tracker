@@ -175,10 +175,10 @@ function App() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="rounded-full">
-                  {user.photoURL ? (
+                  {user.picture ? (
                     <img 
-                      src={user.photoURL} 
-                      alt={user.displayName || 'User'} 
+                      src={user.picture} 
+                      alt={user.name || 'User'} 
                       className="h-8 w-8 rounded-full"
                     />
                   ) : (
@@ -190,7 +190,7 @@ function App() {
                 <DropdownMenuLabel>
                   <div className="flex flex-col space-y-1">
                     <p className="text-sm font-medium leading-none">
-                      {user.displayName || 'User'}
+                      {user.name || 'User'}
                     </p>
                     <p className="text-xs leading-none text-muted-foreground">
                       {user.email}

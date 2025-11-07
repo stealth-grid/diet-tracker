@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { loadGoogleScript, decodeJWT, GOOGLE_CLIENT_ID, type GoogleUser } from '~/lib/googleAuth';
 
 interface AuthContextType {
