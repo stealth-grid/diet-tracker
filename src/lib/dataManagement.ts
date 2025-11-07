@@ -20,23 +20,23 @@ export interface ValidationResult {
 /**
  * Export all user data as JSON
  */
-export const exportData = (): ExportData => {
+export const exportData = (userId: string): ExportData => {
   return {
     version: "1.2",
     exportDate: new Date().toISOString(),
-    foods: getFoods(),
-    intakeEntries: getIntakeEntries(),
-    goals: getGoals(),
-    dietPreference: getDietPreference(),
-    preferredFoodIds: getPreferredFoodIds(),
+    foods: getFoods(userId),
+    intakeEntries: getIntakeEntries(userId),
+    goals: getGoals(userId),
+    dietPreference: getDietPreference(userId),
+    preferredFoodIds: getPreferredFoodIds(userId),
   };
 };
 
 /**
  * Download data as JSON file
  */
-export const downloadDataAsJSON = (): void => {
-  const data = exportData();
+export const downloadDataAsJSON = (userId: string): void => {
+  const data = exportData(userId);
   const jsonString = JSON.stringify(data, null, 2);
   const blob = new Blob([jsonString], { type: "application/json" });
   const url = URL.createObjectURL(blob);
@@ -160,42 +160,43 @@ const isValidGoals = (item: unknown): item is DailyGoals => {
  * Import data with merge or replace option
  */
 export const importData = (
+  userId: string,
   data: ExportData,
   mode: "merge" | "replace"
 ): void => {
   if (mode === "replace") {
     // Replace all data
-    saveFoods(data.foods);
-    saveIntakeEntries(data.intakeEntries);
-    saveGoals(data.goals);
+    saveFoods(userId, data.foods);
+    saveIntakeEntries(userId, data.intakeEntries);
+    saveGoals(userId, data.goals);
     if (data.dietPreference) {
-      saveDietPreference(data.dietPreference);
+      saveDietPreference(userId, data.dietPreference);
     }
     if (data.preferredFoodIds) {
-      savePreferredFoodIds(data.preferredFoodIds);
+      savePreferredFoodIds(userId, data.preferredFoodIds);
     }
   } else {
     // Merge data
-    const existingFoods = getFoods();
-    const existingEntries = getIntakeEntries();
+    const existingFoods = getFoods(userId);
+    const existingEntries = getIntakeEntries(userId);
     
     // Merge foods (avoid duplicates by id)
     const existingFoodIds = new Set(existingFoods.map(f => f.id));
     const newFoods = data.foods.filter(f => !existingFoodIds.has(f.id));
-    saveFoods([...existingFoods, ...newFoods]);
+    saveFoods(userId, [...existingFoods, ...newFoods]);
     
     // Merge intake entries (avoid duplicates by id)
     const existingEntryIds = new Set(existingEntries.map(e => e.id));
     const newEntries = data.intakeEntries.filter(e => !existingEntryIds.has(e.id));
-    saveIntakeEntries([...existingEntries, ...newEntries]);
+    saveIntakeEntries(userId, [...existingEntries, ...newEntries]);
     
     // Goals, diet preference, and preferred foods are replaced (not merged)
-    saveGoals(data.goals);
+    saveGoals(userId, data.goals);
     if (data.dietPreference) {
-      saveDietPreference(data.dietPreference);
+      saveDietPreference(userId, data.dietPreference);
     }
     if (data.preferredFoodIds) {
-      savePreferredFoodIds(data.preferredFoodIds);
+      savePreferredFoodIds(userId, data.preferredFoodIds);
     }
   }
 };

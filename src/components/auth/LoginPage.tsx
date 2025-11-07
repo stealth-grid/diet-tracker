@@ -1,100 +1,160 @@
-import { useEffect, useRef } from 'react';
-import { Utensils, Loader2 } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
-import { useAuth } from '~/contexts/AuthContext';
-import { GOOGLE_CLIENT_ID } from '~/lib/googleAuth';
+import { useEffect, useRef } from "react";
+import { Utensils, User, Cloud, HardDrive } from "lucide-react";
+import { useAuth } from "~/contexts/AuthContext";
+import { Button } from "~/components/ui/button";
 
 export function LoginPage() {
-  const { initialized } = useAuth();
-  const buttonRef = useRef<HTMLDivElement>(null);
+  const { initialized, signInAnonymously, hasBackendConfigured } = useAuth();
+  const googleButtonRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (initialized && buttonRef.current && window.google?.accounts?.id) {
-      // Render Google Sign-In button
-      window.google.accounts.id.renderButton(buttonRef.current, {
-        theme: 'outline',
-        size: 'large',
-        text: 'signin_with',
-        shape: 'rectangular',
-        width: 320,
-      });
+    if (hasBackendConfigured && initialized && window.google && googleButtonRef.current) {
+      window.google.accounts.id.renderButton(
+        googleButtonRef.current,
+        {
+          theme: "outline",
+          size: "large",
+          text: "signin_with",
+          shape: "rectangular",
+          width: 280,
+        }
+      );
     }
-  }, [initialized]);
-
-  if (!GOOGLE_CLIENT_ID) {
-    return (
-      <div className="h-screen flex items-center justify-center bg-gradient-to-br from-green-50 via-blue-50 to-purple-50 p-4">
-        <Card className="w-full max-w-md shadow-lg">
-          <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold text-red-600">Configuration Error</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg p-4">
-              <p className="font-semibold mb-2">Google Client ID not configured</p>
-              <p>Please set up your Google OAuth credentials:</p>
-              <ol className="list-decimal list-inside mt-2 space-y-1">
-                <li>Create a project in Google Cloud Console</li>
-                <li>Enable Google Sign-In</li>
-                <li>Create OAuth 2.0 credentials</li>
-                <li>Add your Client ID to .env file</li>
-              </ol>
-              <p className="mt-3 text-xs">See GOOGLE-AUTH-SETUP.md for detailed instructions</p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
+  }, [initialized, hasBackendConfigured]);
 
   return (
-    <div className="h-screen flex items-center justify-center bg-gradient-to-br from-green-50 via-blue-50 to-purple-50 p-4">
-      <Card className="w-full max-w-md shadow-lg">
-        <CardHeader className="space-y-4 text-center">
-          <div className="mx-auto bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center">
-            <Utensils className="h-8 w-8 text-primary" />
-          </div>
-          <div>
-            <CardTitle className="text-2xl font-bold">Welcome to Diet Tracker</CardTitle>
-            <CardDescription className="mt-2">
-              Track your nutrition, plan your meals, and achieve your health goals
-            </CardDescription>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-4">
-            {/* Google Sign-In Button Container */}
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-50 p-4">
+      <div className="max-w-md w-full">
+        <div className="bg-white rounded-2xl shadow-xl p-8 space-y-8">
+          {/* Logo and Title */}
+          <div className="text-center space-y-4">
             <div className="flex justify-center">
-              {!initialized ? (
-                <div className="flex items-center justify-center h-[44px]">
-                  <Loader2 className="h-5 w-5 animate-spin text-primary" />
-                  <span className="ml-2 text-sm text-muted-foreground">Loading...</span>
+              <div className="bg-primary/10 p-4 rounded-full">
+                <Utensils className="h-12 w-12 text-primary" />
+              </div>
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Diet Tracker</h1>
+              <p className="text-gray-600 mt-2">
+                Track your daily nutrition with ease
+              </p>
+            </div>
+          </div>
+
+          {/* Features */}
+          <div className="space-y-3">
+            <div className="flex items-start gap-3 text-sm text-gray-600">
+              <div className="w-1.5 h-1.5 bg-primary rounded-full mt-1.5" />
+              <p>Track calories and protein intake</p>
+            </div>
+            <div className="flex items-start gap-3 text-sm text-gray-600">
+              <div className="w-1.5 h-1.5 bg-primary rounded-full mt-1.5" />
+              <p>50+ pre-loaded food items</p>
+            </div>
+            <div className="flex items-start gap-3 text-sm text-gray-600">
+              <div className="w-1.5 h-1.5 bg-primary rounded-full mt-1.5" />
+              <p>Create custom food database</p>
+            </div>
+            <div className="flex items-start gap-3 text-sm text-gray-600">
+              <div className="w-1.5 h-1.5 bg-primary rounded-full mt-1.5" />
+              <p>Set and monitor daily goals</p>
+            </div>
+          </div>
+
+          {/* Sign In Options */}
+          <div className="space-y-4">
+            {hasBackendConfigured ? (
+              <>
+                {/* Google Sign In */}
+                <div className="space-y-2">
+                  <div className="flex justify-center">
+                    <div ref={googleButtonRef} />
+                  </div>
+                  {!initialized && (
+                    <div className="text-center">
+                      <p className="text-sm text-gray-500">Loading Google Sign In...</p>
+                    </div>
+                  )}
                 </div>
-              ) : (
-                <div ref={buttonRef} className="google-signin-button" />
-              )}
-            </div>
+
+                {/* Divider */}
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-gray-300"></div>
+                  </div>
+                  <div className="relative flex justify-center text-sm">
+                    <span className="px-2 bg-white text-gray-500">or</span>
+                  </div>
+                </div>
+
+                {/* Anonymous Sign In */}
+                <Button
+                  onClick={signInAnonymously}
+                  variant="outline"
+                  className="w-full h-11"
+                  size="lg"
+                >
+                  <HardDrive className="mr-2 h-5 w-5" />
+                  Continue in Offline Mode
+                </Button>
+              </>
+            ) : (
+              <>
+                {/* Offline-Only Mode */}
+                <div className="text-center space-y-3">
+                  <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
+                    <HardDrive className="h-8 w-8 text-blue-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900">Offline Mode</h3>
+                    <p className="text-sm text-gray-600 mt-1">
+                      App configured to work completely offline
+                    </p>
+                  </div>
+                </div>
+
+                <Button
+                  onClick={signInAnonymously}
+                  className="w-full h-12"
+                  size="lg"
+                >
+                  <HardDrive className="mr-2 h-5 w-5" />
+                  Start Using Diet Tracker
+                </Button>
+              </>
+            )}
           </div>
 
-          <div className="pt-4 border-t">
-            <div className="text-xs text-muted-foreground space-y-2">
-              <p className="font-semibold">Features:</p>
-              <ul className="space-y-1 pl-4">
-                <li>• Track daily food intake and nutrition</li>
-                <li>• Set personalized calorie and protein goals</li>
-                <li>• Get AI-powered meal plan suggestions</li>
-                <li>• Manage custom food database</li>
-                <li>• Choose your preferred foods for meal plans</li>
-                <li>• Export and import your data</li>
-              </ul>
+          {/* Info Notes */}
+          {hasBackendConfigured ? (
+            <div className="space-y-2 text-xs text-gray-500">
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                <p className="font-medium text-blue-900 mb-1 flex items-center gap-1">
+                  <HardDrive className="h-3 w-3" /> Offline Mode
+                </p>
+                <p className="text-blue-700">
+                  Data stored locally. Works without internet. Not synced.
+                </p>
+              </div>
+              <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                <p className="font-medium text-green-900 mb-1 flex items-center gap-1">
+                  <Cloud className="h-3 w-3" /> Google Sign In
+                </p>
+                <p className="text-green-700">
+                  Data synced to cloud. Access from any device.
+                </p>
+              </div>
             </div>
-          </div>
-
-          <div className="text-xs text-center text-muted-foreground pt-2">
-            <p>By signing in, you agree to use Google Sign-In</p>
-            <p>Your data is stored locally in your browser</p>
-          </div>
-        </CardContent>
-      </Card>
+          ) : (
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-xs">
+              <p className="font-medium text-amber-900 mb-1">📱 Offline-Only Mode</p>
+              <p className="text-amber-700">
+                All data is stored locally in your browser. No backend connection required.
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

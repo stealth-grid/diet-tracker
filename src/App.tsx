@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Utensils, LogOut, User as UserIcon, Loader2 } from "lucide-react";
+import { Utensils, LogOut, User as UserIcon, Loader2, HardDrive } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { Button } from "~/components/ui/button";
 import {
@@ -16,11 +16,13 @@ import { MealPlanner } from "~/components/planner/MealPlanner";
 import { SettingsDialog } from "~/components/settings/SettingsDialog";
 import { LoginPage } from "~/components/auth/LoginPage";
 import { useAuth } from "~/contexts/AuthContext";
-import type { FoodItem, DailyGoals, DietPreference, FoodType } from "~/types";
-import { 
-  getFoods, 
-  saveFoods, 
-  addFood, 
+import type { FoodItem, DailyGoals, DietPreference } from "~/types";
+import { foodAPI, userAPI } from "~/lib/api";
+import { initialFoods } from "~/data/initialFoods";
+import {
+  getFoods,
+  saveFoods,
+  addFood,
   deleteFood,
   getGoals,
   saveGoals,
@@ -29,10 +31,9 @@ import {
   getPreferredFoodIds,
   savePreferredFoodIds
 } from "~/lib/storage";
-import { initialFoods } from "~/data/initialFoods";
 
 function App() {
-  const { user, loading, signOut } = useAuth();
+  const { user, loading, signOut, userPreferences, refreshUserPreferences, isAnonymous, hasBackendConfigured } = useAuth();
   const [foods, setFoods] = useState<FoodItem[]>([]);
   const [goals, setGoals] = useState<DailyGoals>({ calorieGoal: 2000, proteinGoal: 50 });
   const [dietPreference, setDietPreference] = useState<DietPreference>('non-vegetarian');
@@ -40,53 +41,59 @@ function App() {
   const [openAddFoodDialog, setOpenAddFoodDialog] = useState(false);
   const [entriesVersion, setEntriesVersion] = useState(0);
   const [activeTab, setActiveTab] = useState("intake");
+  const [dataLoading, setDataLoading] = useState(false);
 
-  // All hooks must be called before any conditional returns!
+  // Load user data from backend or localStorage
   useEffect(() => {
-    // Initialize foods from localStorage or use initial data
-    let storedFoods = getFoods();
-    if (storedFoods.length === 0) {
-      // First time - use all initial foods
-      saveFoods(initialFoods);
-      storedFoods = initialFoods;
-    } else {
-      // Create a map of initial foods by id
-      const initialFoodsMap = new Map(initialFoods.map(f => [f.id, f]));
-      
-      // Update existing pre-populated foods with latest values from initialFoods
-      // Keep custom foods as-is
-      storedFoods = storedFoods.map(food => {
-        if (!food.isCustom && initialFoodsMap.has(food.id)) {
-          // Update pre-populated food with latest values
-          return initialFoodsMap.get(food.id)!;
-        }
-        return food;
-      });
-      
-      // Add any new pre-populated foods that don't exist yet
-      const storedIds = new Set(storedFoods.map(f => f.id));
-      const newFoods = initialFoods.filter(f => !storedIds.has(f.id));
-      if (newFoods.length > 0) {
-        storedFoods = [...storedFoods, ...newFoods];
-      }
-      
-      // Save the updated foods
-      saveFoods(storedFoods);
-    }
-    setFoods(storedFoods);
+    if (!user) return;
+    
+    const loadData = async () => {
+      setDataLoading(true);
+      try {
+        if (isAnonymous || !hasBackendConfigured) {
+          // Anonymous mode or no backend - use localStorage only
+          const storedFoods = getFoods(user.id);
+          if (storedFoods.length === 0) {
+            saveFoods(user.id, initialFoods);
+            setFoods(initialFoods);
+          } else {
+            setFoods(storedFoods);
+          }
+          
+          const storedGoals = getGoals(user.id);
+          setGoals(storedGoals);
+          
+          const storedPreference = getDietPreference(user.id);
+          setDietPreference(storedPreference);
+          
+          const storedPreferredFoods = getPreferredFoodIds(user.id);
+          setPreferredFoodIds(storedPreferredFoods);
+        } else {
+          // Google user with backend - use backend API
+          if (userPreferences) {
+            setGoals({
+              calorieGoal: userPreferences.calorieGoal,
+              proteinGoal: userPreferences.proteinGoal,
+            });
+            setDietPreference(userPreferences.dietPreference);
+            setPreferredFoodIds(userPreferences.preferredFoodIds);
+          }
 
-    // Load goals
-    const storedGoals = getGoals();
-    setGoals(storedGoals);
-    
-    // Load diet preference
-    const storedPreference = getDietPreference();
-    setDietPreference(storedPreference);
-    
-    // Load preferred foods
-    const storedPreferredFoods = getPreferredFoodIds();
-    setPreferredFoodIds(storedPreferredFoods);
-  }, [user]); // Re-run when user changes (logs in/out)
+          const backendFoods = await foodAPI.getAll();
+          setFoods(backendFoods);
+        }
+      } catch (error) {
+        console.error('Error loading data:', error);
+        // Fallback to localStorage for any user
+        const storedFoods = getFoods(user.id);
+        setFoods(storedFoods.length > 0 ? storedFoods : initialFoods);
+      } finally {
+        setDataLoading(false);
+      }
+    };
+
+    loadData();
+  }, [user, userPreferences, isAnonymous, hasBackendConfigured]);
 
   // Show loading screen while checking authentication
   if (loading) {
@@ -105,29 +112,126 @@ function App() {
     return <LoginPage />;
   }
 
-  const handleAddFood = (food: FoodItem) => {
-    addFood(food);
-    setFoods(getFoods());
+  // Show loading for data
+  if (dataLoading) {
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-primary" />
+          <p className="text-muted-foreground">Loading your data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const handleAddFood = async (food: FoodItem) => {
+    if (!user) return;
+    try {
+      if (isAnonymous || !hasBackendConfigured) {
+        // Anonymous/offline mode - use localStorage
+        addFood(user.id, food);
+        setFoods(getFoods(user.id));
+      } else {
+        // Google user with backend - use backend API
+        const newFood = await foodAPI.create({
+          name: food.name,
+          proteinPer100g: food.proteinPer100g,
+          caloriesPer100g: food.caloriesPer100g,
+          foodType: food.foodType,
+          category: food.category,
+        });
+        setFoods([...foods, newFood]);
+      }
+    } catch (error) {
+      console.error('Error adding food:', error);
+      alert('Failed to add food. Please try again.');
+    }
   };
 
-  const handleDeleteFood = (foodId: string) => {
-    deleteFood(foodId);
-    setFoods(getFoods());
+  const handleDeleteFood = async (foodId: string) => {
+    if (!user) return;
+    try {
+      if (isAnonymous || !hasBackendConfigured) {
+        // Anonymous/offline mode - use localStorage
+        deleteFood(user.id, foodId);
+        setFoods(getFoods(user.id));
+      } else {
+        // Google user with backend - use backend API
+        await foodAPI.delete(foodId);
+        setFoods(foods.filter(f => f.id !== foodId));
+      }
+    } catch (error) {
+      console.error('Error deleting food:', error);
+      alert('Failed to delete food. Please try again.');
+    }
   };
 
-  const handleSaveGoals = (newGoals: DailyGoals) => {
-    saveGoals(newGoals);
-    setGoals(newGoals);
+  const handleSaveGoals = async (newGoals: DailyGoals) => {
+    if (!user) return;
+    try {
+      if (isAnonymous || !hasBackendConfigured) {
+        // Anonymous/offline mode - use localStorage
+        saveGoals(user.id, newGoals);
+        setGoals(newGoals);
+      } else {
+        // Google user with backend - use backend API
+        await userAPI.updatePreferences({
+          calorieGoal: newGoals.calorieGoal,
+          proteinGoal: newGoals.proteinGoal,
+        });
+        setGoals(newGoals);
+        await refreshUserPreferences();
+      }
+    } catch (error) {
+      console.error('Error saving goals:', error);
+      alert('Failed to save goals. Please try again.');
+    }
   };
 
-  const handleSaveDietPreference = (preference: DietPreference) => {
-    saveDietPreference(preference);
-    setDietPreference(preference);
+  const handleSaveDietPreference = async (preference: DietPreference) => {
+    if (!user) return;
+    try {
+      if (isAnonymous || !hasBackendConfigured) {
+        // Anonymous/offline mode - use localStorage
+        saveDietPreference(user.id, preference);
+        setDietPreference(preference);
+      } else {
+        // Google user with backend - use backend API
+        await userAPI.updatePreferences({
+          dietPreference: preference,
+        });
+        setDietPreference(preference);
+        await refreshUserPreferences();
+        
+        // Reload foods with new diet preference
+        const backendFoods = await foodAPI.getAll(preference);
+        setFoods(backendFoods);
+      }
+    } catch (error) {
+      console.error('Error saving diet preference:', error);
+      alert('Failed to save diet preference. Please try again.');
+    }
   };
 
-  const handleSavePreferredFoods = (foodIds: string[]) => {
-    savePreferredFoodIds(foodIds);
-    setPreferredFoodIds(foodIds);
+  const handleSavePreferredFoods = async (foodIds: string[]) => {
+    if (!user) return;
+    try {
+      if (isAnonymous || !hasBackendConfigured) {
+        // Anonymous/offline mode - use localStorage
+        savePreferredFoodIds(user.id, foodIds);
+        setPreferredFoodIds(foodIds);
+      } else {
+        // Google user with backend - use backend API
+        await userAPI.updatePreferences({
+          preferredFoodIds: foodIds,
+        });
+        setPreferredFoodIds(foodIds);
+        await refreshUserPreferences();
+      }
+    } catch (error) {
+      console.error('Error saving preferred foods:', error);
+      alert('Failed to save preferred foods. Please try again.');
+    }
   };
 
   const handleOpenAddNewFood = () => {
@@ -140,17 +244,39 @@ function App() {
     setEntriesVersion(v => v + 1);
   };
 
-  const handleDataImported = () => {
-    // Reload all data after import
-    const storedFoods = getFoods();
-    const storedGoals = getGoals();
-    const storedPreference = getDietPreference();
-    const storedPreferredFoods = getPreferredFoodIds();
-    setFoods(storedFoods);
-    setGoals(storedGoals);
-    setDietPreference(storedPreference);
-    setPreferredFoodIds(storedPreferredFoods);
-    setEntriesVersion(v => v + 1); // Trigger intake tracker refresh
+  const handleDataImported = async () => {
+    if (!user) return;
+    try {
+      if (isAnonymous || !hasBackendConfigured) {
+        // Anonymous/offline mode - reload from localStorage
+        const storedFoods = getFoods(user.id);
+        const storedGoals = getGoals(user.id);
+        const storedPreference = getDietPreference(user.id);
+        const storedPreferredFoods = getPreferredFoodIds(user.id);
+        setFoods(storedFoods);
+        setGoals(storedGoals);
+        setDietPreference(storedPreference);
+        setPreferredFoodIds(storedPreferredFoods);
+      } else {
+        // Google user with backend - reload from backend
+        const backendFoods = await foodAPI.getAll();
+        setFoods(backendFoods);
+        
+        await refreshUserPreferences();
+        if (userPreferences) {
+          setGoals({
+            calorieGoal: userPreferences.calorieGoal,
+            proteinGoal: userPreferences.proteinGoal,
+          });
+          setDietPreference(userPreferences.dietPreference);
+          setPreferredFoodIds(userPreferences.preferredFoodIds);
+        }
+      }
+      
+      setEntriesVersion(v => v + 1);
+    } catch (error) {
+      console.error('Error reloading data after import:', error);
+    }
   };
 
   return (
@@ -160,9 +286,16 @@ function App() {
           <div className="flex items-center gap-2">
             <Utensils className="h-6 w-6" />
             <h1 className="text-xl font-bold text-foreground">Diet Tracker</h1>
+            {(isAnonymous || !hasBackendConfigured) && (
+              <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full flex items-center gap-1">
+                <HardDrive className="h-3 w-3" />
+                Offline
+              </span>
+            )}
           </div>
           <div className="flex items-center gap-3">
             <SettingsDialog 
+              userId={user.id}
               foods={foods}
               goals={goals}
               dietPreference={dietPreference}
@@ -221,6 +354,7 @@ function App() {
               foods={foods} 
               goals={goals}
               dietPreference={dietPreference}
+              userId={user.id}
               onAddNewFood={handleOpenAddNewFood}
               onEntriesChange={handleEntriesChange}
             />

@@ -31,6 +31,7 @@ import {
 } from "~/lib/dataManagement";
 
 interface SettingsDialogProps {
+  userId: string;
   foods: FoodItem[];
   goals: DailyGoals;
   dietPreference: DietPreference;
@@ -42,6 +43,7 @@ interface SettingsDialogProps {
 }
 
 export function SettingsDialog({ 
+  userId,
   foods,
   goals, 
   dietPreference, 
@@ -90,7 +92,7 @@ export function SettingsDialog({
 
   const handleExportData = () => {
     try {
-      downloadDataAsJSON();
+      downloadDataAsJSON(userId);
       setImportStatus({ 
         type: "success", 
         message: "Data exported successfully! Check your downloads folder." 
@@ -138,7 +140,7 @@ export function SettingsDialog({
       }
 
       // Import data
-      importData(data as ExportData, importMode);
+      importData(userId, data as ExportData, importMode);
       
       // Notify parent component
       onDataImported();
