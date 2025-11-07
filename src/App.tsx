@@ -34,25 +34,28 @@ function App() {
       saveFoods(initialFoods);
       storedFoods = initialFoods;
     } else {
-      // Merge: Add any new pre-populated foods that don't exist yet
+      // Create a map of initial foods by id
+      const initialFoodsMap = new Map(initialFoods.map(f => [f.id, f]));
+      
+      // Update existing pre-populated foods with latest values from initialFoods
+      // Keep custom foods as-is
+      storedFoods = storedFoods.map(food => {
+        if (!food.isCustom && initialFoodsMap.has(food.id)) {
+          // Update pre-populated food with latest values
+          return initialFoodsMap.get(food.id)!;
+        }
+        return food;
+      });
+      
+      // Add any new pre-populated foods that don't exist yet
       const storedIds = new Set(storedFoods.map(f => f.id));
       const newFoods = initialFoods.filter(f => !storedIds.has(f.id));
       if (newFoods.length > 0) {
         storedFoods = [...storedFoods, ...newFoods];
-        saveFoods(storedFoods);
       }
       
-      // Migration: Add foodType to existing foods that don't have it
-      const needsMigration = storedFoods.some(f => !f.foodType);
-      if (needsMigration) {
-        storedFoods = storedFoods.map(food => {
-          if (!food.foodType) {
-            return { ...food, foodType: 'veg' as FoodType }; // Default to veg
-          }
-          return food;
-        });
-        saveFoods(storedFoods);
-      }
+      // Save the updated foods
+      saveFoods(storedFoods);
     }
     setFoods(storedFoods);
 
@@ -135,7 +138,8 @@ function App() {
           <TabsContent value="intake" className="mt-0">
             <IntakeTracker 
               foods={foods} 
-              goals={goals} 
+              goals={goals}
+              dietPreference={dietPreference}
               onAddNewFood={handleOpenAddNewFood}
               onEntriesChange={handleEntriesChange}
             />
@@ -154,6 +158,7 @@ function App() {
               foods={foods} 
               onAddFood={handleAddFood} 
               onDeleteFood={handleDeleteFood}
+              dietPreference={dietPreference}
               openAddDialog={openAddFoodDialog}
               onAddDialogChange={setOpenAddFoodDialog}
             />

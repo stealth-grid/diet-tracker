@@ -5,17 +5,19 @@ import { Label } from "~/components/ui/label";
 import { DailySummary } from "./DailySummary";
 import { IntakeList } from "./IntakeList";
 import { AddIntakeDialog } from "./AddIntakeDialog";
-import type { FoodItem, IntakeEntry, DailyGoals } from "~/types";
+import type { FoodItem, IntakeEntry, DailyGoals, DietPreference } from "~/types";
 import { getEntriesByDate, deleteIntakeEntry, addIntakeEntry, getTodayDate } from "~/lib/storage";
+import { filterFoodsByDietPreference } from "~/lib/utils";
 
 interface IntakeTrackerProps {
   foods: FoodItem[];
   goals: DailyGoals;
+  dietPreference: DietPreference;
   onAddNewFood: () => void;
   onEntriesChange: () => void;
 }
 
-export function IntakeTracker({ foods, goals, onAddNewFood, onEntriesChange }: IntakeTrackerProps) {
+export function IntakeTracker({ foods, goals, dietPreference, onAddNewFood, onEntriesChange }: IntakeTrackerProps) {
   const [selectedDate, setSelectedDate] = useState(getTodayDate());
   const [entries, setEntries] = useState<IntakeEntry[]>([]);
 
@@ -45,6 +47,9 @@ export function IntakeTracker({ foods, goals, onAddNewFood, onEntriesChange }: I
   const totalCalories = entries.reduce((sum, entry) => sum + entry.calories, 0);
   const totalProtein = entries.reduce((sum, entry) => sum + entry.protein, 0);
 
+  // Filter foods based on diet preference
+  const filteredFoods = filterFoodsByDietPreference(foods, dietPreference);
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
@@ -61,7 +66,7 @@ export function IntakeTracker({ foods, goals, onAddNewFood, onEntriesChange }: I
             max={getTodayDate()}
           />
         </div>
-        <AddIntakeDialog foods={foods} onAdd={handleAddEntry} onAddNewFood={onAddNewFood} />
+        <AddIntakeDialog foods={filteredFoods} onAdd={handleAddEntry} onAddNewFood={onAddNewFood} />
       </div>
 
       <DailySummary totalCalories={totalCalories} totalProtein={totalProtein} goals={goals} />

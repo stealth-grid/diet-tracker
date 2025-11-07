@@ -4,12 +4,14 @@ import { Input } from "~/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { FoodList } from "./FoodList";
 import { AddFoodDialog } from "./AddFoodDialog";
-import type { FoodItem } from "~/types";
+import type { FoodItem, DietPreference } from "~/types";
+import { filterFoodsByDietPreference } from "~/lib/utils";
 
 interface FoodDatabaseProps {
   foods: FoodItem[];
   onAddFood: (food: FoodItem) => void;
   onDeleteFood: (foodId: string) => void;
+  dietPreference: DietPreference;
   openAddDialog?: boolean;
   onAddDialogChange?: (open: boolean) => void;
 }
@@ -18,10 +20,14 @@ export function FoodDatabase({
   foods, 
   onAddFood, 
   onDeleteFood,
+  dietPreference,
   openAddDialog,
   onAddDialogChange 
 }: FoodDatabaseProps) {
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Filter foods based on diet preference
+  const filteredFoods = filterFoodsByDietPreference(foods, dietPreference);
 
   return (
     <div className="space-y-6">
@@ -47,12 +53,12 @@ export function FoodDatabase({
             />
           </div>
           <div className="text-sm text-muted-foreground">
-            {foods.length} food items available
+            {filteredFoods.length} food items available
           </div>
         </CardContent>
       </Card>
 
-      <FoodList foods={foods} onDelete={onDeleteFood} searchQuery={searchQuery} />
+      <FoodList foods={filteredFoods} onDelete={onDeleteFood} searchQuery={searchQuery} />
     </div>
   );
 }

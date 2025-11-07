@@ -71,7 +71,8 @@ export function SettingsDialog({ goals, dietPreference, onSave, onSaveDietPrefer
     setImportStatus({ type: "success", message: "Goals and preferences saved successfully!" });
     setTimeout(() => {
       setImportStatus({ type: "idle", message: "" });
-    }, 3000);
+      setOpen(false); // Close the modal after showing success message
+    }, 1000);
   };
 
   const handleExportData = () => {

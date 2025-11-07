@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Badge } from "~/components/ui/badge";
 import { FoodTypeIndicator } from "~/components/ui/food-type-indicator";
 import type { FoodItem, DailyGoals, DietPreference, FoodType } from "~/types";
+import { filterFoodsByDietPreference } from "~/lib/utils";
 
 interface MealPlannerProps {
   foods: FoodItem[];
@@ -34,16 +35,6 @@ export function MealPlanner({ foods, goals, dietPreference }: MealPlannerProps) 
   const [mealPlan, setMealPlan] = useState<MealPlan | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
 
-  // Filter foods based on diet preference
-  const filterFoodsByDiet = (foods: FoodItem[]): FoodItem[] => {
-    if (dietPreference === 'vegetarian') {
-      return foods.filter(f => f.foodType === 'veg');
-    } else if (dietPreference === 'eggetarian') {
-      return foods.filter(f => f.foodType === 'veg' || f.foodType === 'egg');
-    }
-    return foods; // non-vegetarian gets all foods
-  };
-
   useEffect(() => {
     generateMealPlan();
   }, [foods, goals, dietPreference]);
@@ -52,7 +43,7 @@ export function MealPlanner({ foods, goals, dietPreference }: MealPlannerProps) 
     setIsGenerating(true);
     
     // Use all foods including custom ones, filtered by diet preference
-    const availableFoods = filterFoodsByDiet(foods.filter(f => f.id && f.name));
+    const availableFoods = filterFoodsByDietPreference(foods.filter(f => f.id && f.name), dietPreference);
     
     // Distribute calories and protein across meals
     const calorieDistribution = {
