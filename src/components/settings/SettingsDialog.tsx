@@ -19,8 +19,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import type { DailyGoals, DietPreference } from "~/types";
+import type { DailyGoals, DietPreference, FoodItem } from "~/types";
 import { FoodTypeIndicator } from "~/components/ui/food-type-indicator";
+import { FoodPreferences } from "./FoodPreferences";
 import {
   downloadDataAsJSON,
   readJSONFile,
@@ -30,14 +31,26 @@ import {
 } from "~/lib/dataManagement";
 
 interface SettingsDialogProps {
+  foods: FoodItem[];
   goals: DailyGoals;
   dietPreference: DietPreference;
+  preferredFoodIds: string[];
   onSave: (goals: DailyGoals) => void;
   onSaveDietPreference: (preference: DietPreference) => void;
+  onSavePreferredFoods: (foodIds: string[]) => void;
   onDataImported: () => void;
 }
 
-export function SettingsDialog({ goals, dietPreference, onSave, onSaveDietPreference, onDataImported }: SettingsDialogProps) {
+export function SettingsDialog({ 
+  foods,
+  goals, 
+  dietPreference, 
+  preferredFoodIds,
+  onSave, 
+  onSaveDietPreference,
+  onSavePreferredFoods,
+  onDataImported 
+}: SettingsDialogProps) {
   const [open, setOpen] = useState(false);
   const [calorieGoal, setCalorieGoal] = useState(goals.calorieGoal);
   const [proteinGoal, setProteinGoal] = useState(goals.proteinGoal);
@@ -172,9 +185,10 @@ export function SettingsDialog({ goals, dietPreference, onSave, onSaveDietPrefer
         </DialogHeader>
 
         <Tabs defaultValue="goals" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="goals">Goals</TabsTrigger>
-            <TabsTrigger value="data">Data Management</TabsTrigger>
+            <TabsTrigger value="foods">Food Preferences</TabsTrigger>
+            <TabsTrigger value="data">Data</TabsTrigger>
           </TabsList>
 
           <TabsContent value="goals" className="space-y-4 pt-4">
@@ -230,6 +244,22 @@ export function SettingsDialog({ goals, dietPreference, onSave, onSaveDietPrefer
             <Button onClick={handleSaveGoals} className="w-full">
               Save Goals & Preferences
             </Button>
+          </TabsContent>
+
+          <TabsContent value="foods" className="space-y-4 pt-4">
+            <FoodPreferences
+              foods={foods}
+              dietPreference={dietPreference}
+              selectedFoodIds={preferredFoodIds}
+              onSave={(foodIds) => {
+                onSavePreferredFoods(foodIds);
+                setImportStatus({ type: "success", message: "Food preferences saved successfully!" });
+                setTimeout(() => {
+                  setImportStatus({ type: "idle", message: "" });
+                  setOpen(false);
+                }, 1000);
+              }}
+            />
           </TabsContent>
 
           <TabsContent value="data" className="space-y-4 pt-4">

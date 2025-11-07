@@ -14,7 +14,9 @@ import {
   getGoals,
   saveGoals,
   getDietPreference,
-  saveDietPreference
+  saveDietPreference,
+  getPreferredFoodIds,
+  savePreferredFoodIds
 } from "~/lib/storage";
 import { initialFoods } from "~/data/initialFoods";
 
@@ -22,6 +24,7 @@ function App() {
   const [foods, setFoods] = useState<FoodItem[]>([]);
   const [goals, setGoals] = useState<DailyGoals>({ calorieGoal: 2000, proteinGoal: 50 });
   const [dietPreference, setDietPreference] = useState<DietPreference>('non-vegetarian');
+  const [preferredFoodIds, setPreferredFoodIds] = useState<string[]>([]);
   const [openAddFoodDialog, setOpenAddFoodDialog] = useState(false);
   const [entriesVersion, setEntriesVersion] = useState(0);
   const [activeTab, setActiveTab] = useState("intake");
@@ -66,6 +69,10 @@ function App() {
     // Load diet preference
     const storedPreference = getDietPreference();
     setDietPreference(storedPreference);
+    
+    // Load preferred foods
+    const storedPreferredFoods = getPreferredFoodIds();
+    setPreferredFoodIds(storedPreferredFoods);
   }, []);
 
   const handleAddFood = (food: FoodItem) => {
@@ -88,6 +95,11 @@ function App() {
     setDietPreference(preference);
   };
 
+  const handleSavePreferredFoods = (foodIds: string[]) => {
+    savePreferredFoodIds(foodIds);
+    setPreferredFoodIds(foodIds);
+  };
+
   const handleOpenAddNewFood = () => {
     // Switch to Food Database tab and open Add Food dialog
     setActiveTab("database");
@@ -103,9 +115,11 @@ function App() {
     const storedFoods = getFoods();
     const storedGoals = getGoals();
     const storedPreference = getDietPreference();
+    const storedPreferredFoods = getPreferredFoodIds();
     setFoods(storedFoods);
     setGoals(storedGoals);
     setDietPreference(storedPreference);
+    setPreferredFoodIds(storedPreferredFoods);
     setEntriesVersion(v => v + 1); // Trigger intake tracker refresh
   };
 
@@ -118,10 +132,13 @@ function App() {
             <h1 className="text-xl font-bold text-foreground">Diet Tracker</h1>
           </div>
           <SettingsDialog 
+            foods={foods}
             goals={goals}
             dietPreference={dietPreference}
+            preferredFoodIds={preferredFoodIds}
             onSave={handleSaveGoals}
             onSaveDietPreference={handleSaveDietPreference}
+            onSavePreferredFoods={handleSavePreferredFoods}
             onDataImported={handleDataImported}
           />
         </div>
@@ -150,6 +167,7 @@ function App() {
               foods={foods} 
               goals={goals}
               dietPreference={dietPreference}
+              preferredFoodIds={preferredFoodIds}
             />
           </TabsContent>
 

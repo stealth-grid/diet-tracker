@@ -1,5 +1,5 @@
 import type { FoodItem, IntakeEntry, DailyGoals, DietPreference } from "~/types";
-import { getFoods, getIntakeEntries, getGoals, saveFoods, saveIntakeEntries, saveGoals, getDietPreference, saveDietPreference } from "./storage";
+import { getFoods, getIntakeEntries, getGoals, saveFoods, saveIntakeEntries, saveGoals, getDietPreference, saveDietPreference, getPreferredFoodIds, savePreferredFoodIds } from "./storage";
 
 export interface ExportData {
   version: string;
@@ -8,6 +8,7 @@ export interface ExportData {
   intakeEntries: IntakeEntry[];
   goals: DailyGoals;
   dietPreference?: DietPreference; // Optional for backward compatibility
+  preferredFoodIds?: string[]; // Optional for backward compatibility
 }
 
 export interface ValidationResult {
@@ -21,12 +22,13 @@ export interface ValidationResult {
  */
 export const exportData = (): ExportData => {
   return {
-    version: "1.1",
+    version: "1.2",
     exportDate: new Date().toISOString(),
     foods: getFoods(),
     intakeEntries: getIntakeEntries(),
     goals: getGoals(),
     dietPreference: getDietPreference(),
+    preferredFoodIds: getPreferredFoodIds(),
   };
 };
 
@@ -169,6 +171,9 @@ export const importData = (
     if (data.dietPreference) {
       saveDietPreference(data.dietPreference);
     }
+    if (data.preferredFoodIds) {
+      savePreferredFoodIds(data.preferredFoodIds);
+    }
   } else {
     // Merge data
     const existingFoods = getFoods();
@@ -184,10 +189,13 @@ export const importData = (
     const newEntries = data.intakeEntries.filter(e => !existingEntryIds.has(e.id));
     saveIntakeEntries([...existingEntries, ...newEntries]);
     
-    // Goals and diet preference are replaced (not merged)
+    // Goals, diet preference, and preferred foods are replaced (not merged)
     saveGoals(data.goals);
     if (data.dietPreference) {
       saveDietPreference(data.dietPreference);
+    }
+    if (data.preferredFoodIds) {
+      savePreferredFoodIds(data.preferredFoodIds);
     }
   }
 };

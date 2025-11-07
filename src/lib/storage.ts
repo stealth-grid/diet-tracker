@@ -5,6 +5,7 @@ const STORAGE_KEYS = {
   INTAKE: 'diet-tracker-intake',
   GOALS: 'diet-tracker-goals',
   DIET_PREFERENCE: 'diet-tracker-diet-preference',
+  PREFERRED_FOODS: 'diet-tracker-preferred-foods',
 };
 
 // Food Items
@@ -101,4 +102,14 @@ export const formatDate = (date: Date): string => {
 
 export const getTodayDate = (): string => {
   return formatDate(new Date());
+};
+
+// Preferred Foods
+export const getPreferredFoodIds = (): string[] => {
+  const data = localStorage.getItem(STORAGE_KEYS.PREFERRED_FOODS);
+  return data ? JSON.parse(data) : [];
+};
+
+export const savePreferredFoodIds = (foodIds: string[]): void => {
+  localStorage.setItem(STORAGE_KEYS.PREFERRED_FOODS, JSON.stringify(foodIds));
 };

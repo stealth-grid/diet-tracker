@@ -31,6 +31,7 @@ export interface DailyGoals {
 export interface UserPreferences {
   goals: DailyGoals;
   dietPreference: DietPreference;
+  preferredFoodIds: string[]; // IDs of foods user prefers for meal planning
 }
 
 export interface DailySummary {

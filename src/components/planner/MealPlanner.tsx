@@ -11,6 +11,7 @@ interface MealPlannerProps {
   foods: FoodItem[];
   goals: DailyGoals;
   dietPreference: DietPreference;
+  preferredFoodIds: string[];
 }
 
 interface MealSuggestion {
@@ -31,19 +32,25 @@ interface MealPlan {
   totalProtein: number;
 }
 
-export function MealPlanner({ foods, goals, dietPreference }: MealPlannerProps) {
+export function MealPlanner({ foods, goals, dietPreference, preferredFoodIds }: MealPlannerProps) {
   const [mealPlan, setMealPlan] = useState<MealPlan | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
 
   useEffect(() => {
     generateMealPlan();
-  }, [foods, goals, dietPreference]);
+  }, [foods, goals, dietPreference, preferredFoodIds]);
 
   const generateMealPlan = () => {
     setIsGenerating(true);
     
-    // Use all foods including custom ones, filtered by diet preference
-    const availableFoods = filterFoodsByDietPreference(foods.filter(f => f.id && f.name), dietPreference);
+    // Filter by diet preference first
+    let availableFoods = filterFoodsByDietPreference(foods.filter(f => f.id && f.name), dietPreference);
+    
+    // If user has selected preferred foods, use only those
+    if (preferredFoodIds.length > 0) {
+      const preferredSet = new Set(preferredFoodIds);
+      availableFoods = availableFoods.filter(f => preferredSet.has(f.id));
+    }
     
     // Distribute calories and protein across meals
     const calorieDistribution = {
@@ -258,6 +265,14 @@ export function MealPlanner({ foods, goals, dietPreference }: MealPlannerProps) 
 
   return (
     <div className="space-y-6">
+      {/* Info about preferred foods */}
+      {preferredFoodIds.length > 0 && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-blue-900">
+          <strong>Note:</strong> Meal plan is using your {preferredFoodIds.length} preferred foods. 
+          You can change your food preferences in Settings → Food Preferences.
+        </div>
+      )}
+
       {/* Header with Goals */}
       <Card>
         <CardHeader>
