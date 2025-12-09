@@ -9,6 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
+import { ThemeToggleButton } from "~/components/ui/theme-toggle-button";
 import { useAuth } from "~/contexts/AuthContext";
 
 export function Layout() {
@@ -28,43 +29,15 @@ export function Layout() {
               <h1 className="text-xl font-bold text-foreground">Diet Tracker</h1>
             </NavLink>
             {(isAnonymous || !hasBackendConfigured) && (
-              <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full flex items-center gap-1">
+              <span className="text-xs bg-blue-100 dark:bg-blue-950/50 text-blue-800 dark:text-blue-300 px-2 py-1 rounded-full flex items-center gap-1">
                 <HardDrive className="h-3 w-3" />
                 Offline
               </span>
             )}
           </div>
 
-          <nav className="hidden md:flex items-center gap-4">
-            <NavLink
-              to="/settings"
-              className={({ isActive }) =>
-                `flex items-center gap-2 px-3 py-2 rounded-md transition-colors ${
-                  isActive
-                    ? "bg-accent text-accent-foreground font-medium"
-                    : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
-                }`
-              }
-            >
-              <Settings className="h-4 w-4" />
-              <span>Settings</span>
-            </NavLink>
-            <NavLink
-              to="/preferences"
-              className={({ isActive }) =>
-                `flex items-center gap-2 px-3 py-2 rounded-md transition-colors ${
-                  isActive
-                    ? "bg-accent text-accent-foreground font-medium"
-                    : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
-                }`
-              }
-            >
-              <Heart className="h-4 w-4" />
-              <span>Preferences</span>
-            </NavLink>
-          </nav>
-
           <div className="flex items-center gap-3">
+            <ThemeToggleButton />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="rounded-full">
@@ -97,13 +70,13 @@ export function Layout() {
                     <span>Profile</span>
                   </NavLink>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild className="md:hidden">
+                <DropdownMenuItem asChild>
                   <NavLink to="/settings" className="cursor-pointer">
                     <Settings className="mr-2 h-4 w-4" />
                     <span>Settings</span>
                   </NavLink>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild className="md:hidden">
+                <DropdownMenuItem asChild>
                   <NavLink to="/preferences" className="cursor-pointer">
                     <Heart className="mr-2 h-4 w-4" />
                     <span>Preferences</span>
@@ -128,7 +101,7 @@ export function Layout() {
       </main>
 
       <footer className="mt-8">
-        <div className="border-t border-gray-200"></div>
+        <div className="border-t border-border"></div>
         <div className="container mx-auto flex items-center justify-center gap-4 p-4">
           <p className="text-balance text-center text-sm leading-loose text-muted-foreground">
             &copy; {new Date().getFullYear()} Diet Tracker. All rights reserved.

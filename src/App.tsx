@@ -5,7 +5,7 @@ import { HomePage } from "~/pages/HomePage";
 import { SettingsPage } from "~/pages/SettingsPage";
 import { ProfilePage } from "~/pages/ProfilePage";
 import { PreferencesPage } from "~/pages/PreferencesPage";
-import { LoginPage } from "~/components/auth/LoginPage";
+import { LoginPage } from "~/pages/LoginPage";
 import { useAuth } from "~/contexts/AuthContext";
 
 function App() {
@@ -23,21 +23,27 @@ function App() {
     );
   }
 
-  // Show login page if not authenticated
-  if (!user) {
-    return <LoginPage />;
-  }
-
-  // Authenticated users see the app with routing
   return (
     <Routes>
-      <Route path="/" element={<Layout />}>
+      {/* Public route - Login page */}
+      <Route
+        path="/login"
+        element={user ? <Navigate to="/" replace /> : <LoginPage />}
+      />
+
+      {/* Protected routes - Require authentication */}
+      <Route
+        path="/"
+        element={user ? <Layout /> : <Navigate to="/login" replace />}
+      >
         <Route index element={<HomePage />} />
         <Route path="settings" element={<SettingsPage />} />
         <Route path="profile" element={<ProfilePage />} />
         <Route path="preferences" element={<PreferencesPage />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
+
+      {/* Catch all - redirect to login or home based on auth status */}
+      <Route path="*" element={<Navigate to={user ? "/" : "/login"} replace />} />
     </Routes>
   );
 }
