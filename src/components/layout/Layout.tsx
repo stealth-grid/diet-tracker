@@ -1,0 +1,140 @@
+import { Outlet, NavLink } from "react-router-dom";
+import { Utensils, LogOut, User as UserIcon, Settings, Heart, HardDrive } from "lucide-react";
+import { Button } from "~/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu";
+import { useAuth } from "~/contexts/AuthContext";
+
+export function Layout() {
+  const { user, signOut, isAnonymous, hasBackendConfigured } = useAuth();
+
+  if (!user) {
+    return null;
+  }
+
+  return (
+    <div className="min-h-screen flex flex-col">
+      <header className="border-b bg-background p-4 mb-8 sticky top-0 z-10">
+        <div className="container mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-6">
+            <NavLink to="/" className="flex items-center gap-2">
+              <Utensils className="h-6 w-6" />
+              <h1 className="text-xl font-bold text-foreground">Diet Tracker</h1>
+            </NavLink>
+            {(isAnonymous || !hasBackendConfigured) && (
+              <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full flex items-center gap-1">
+                <HardDrive className="h-3 w-3" />
+                Offline
+              </span>
+            )}
+          </div>
+
+          <nav className="hidden md:flex items-center gap-4">
+            <NavLink
+              to="/settings"
+              className={({ isActive }) =>
+                `flex items-center gap-2 px-3 py-2 rounded-md transition-colors ${
+                  isActive
+                    ? "bg-accent text-accent-foreground font-medium"
+                    : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
+                }`
+              }
+            >
+              <Settings className="h-4 w-4" />
+              <span>Settings</span>
+            </NavLink>
+            <NavLink
+              to="/preferences"
+              className={({ isActive }) =>
+                `flex items-center gap-2 px-3 py-2 rounded-md transition-colors ${
+                  isActive
+                    ? "bg-accent text-accent-foreground font-medium"
+                    : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
+                }`
+              }
+            >
+              <Heart className="h-4 w-4" />
+              <span>Preferences</span>
+            </NavLink>
+          </nav>
+
+          <div className="flex items-center gap-3">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="rounded-full">
+                  {user.picture ? (
+                    <img
+                      src={user.picture}
+                      alt={user.name || "User"}
+                      className="h-8 w-8 rounded-full"
+                    />
+                  ) : (
+                    <UserIcon className="h-4 w-4" />
+                  )}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel>
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium leading-none">
+                      {user.name || "User"}
+                    </p>
+                    <p className="text-xs leading-none text-muted-foreground">
+                      {user.email}
+                    </p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <NavLink to="/profile" className="cursor-pointer">
+                    <UserIcon className="mr-2 h-4 w-4" />
+                    <span>Profile</span>
+                  </NavLink>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild className="md:hidden">
+                  <NavLink to="/settings" className="cursor-pointer">
+                    <Settings className="mr-2 h-4 w-4" />
+                    <span>Settings</span>
+                  </NavLink>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild className="md:hidden">
+                  <NavLink to="/preferences" className="cursor-pointer">
+                    <Heart className="mr-2 h-4 w-4" />
+                    <span>Preferences</span>
+                  </NavLink>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={() => signOut()}
+                  className="text-red-600 cursor-pointer"
+                >
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Sign out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
+      </header>
+
+      <main className="flex-grow container mx-auto p-4 max-w-5xl">
+        <Outlet />
+      </main>
+
+      <footer className="mt-8">
+        <div className="border-t border-gray-200"></div>
+        <div className="container mx-auto flex items-center justify-center gap-4 p-4">
+          <p className="text-balance text-center text-sm leading-loose text-muted-foreground">
+            &copy; {new Date().getFullYear()} Diet Tracker. All rights reserved.
+          </p>
+        </div>
+      </footer>
+    </div>
+  );
+}
