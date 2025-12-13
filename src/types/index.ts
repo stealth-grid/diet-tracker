@@ -39,3 +39,37 @@ export interface DailySummary {
   totalProtein: number;
   entries: IntakeEntry[];
 }
+
+// Recipe Types
+export interface RecipeIngredient {
+  foodId: string;
+  foodName: string;
+  quantity: number;        // in grams
+  protein: number;         // calculated protein for this quantity
+  calories: number;        // calculated calories for this quantity
+  foodType: FoodType;      // for displaying indicator
+}
+
+export interface Recipe {
+  id: string;
+  name: string;
+  description?: string;
+  ingredients: RecipeIngredient[];
+  servings: number;        // number of servings this recipe makes
+  prepTime?: number;       // in minutes
+  cookTime?: number;       // in minutes
+  instructions?: string;   // cooking instructions
+  category?: string;       // e.g., "breakfast", "lunch", "dinner", "snack"
+  tags?: string[];         // e.g., ["quick", "high-protein", "meal-prep"]
+  imageUrl?: string;       // optional recipe photo
+  createdAt: number;       // Unix timestamp
+  updatedAt: number;       // Unix timestamp
+  // Calculated totals for entire recipe
+  totalCalories: number;
+  totalProtein: number;
+  // Per serving values
+  caloriesPerServing: number;
+  proteinPerServing: number;
+  // Derived food type (most restrictive ingredient)
+  foodType: FoodType;
+}

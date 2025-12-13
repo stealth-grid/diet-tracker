@@ -102,6 +102,7 @@ export const userAPI = {
 // ==================== FOOD API ====================
 
 export interface CreateFoodDTO {
+  id?: string;
   name: string;
   proteinPer100g: number;
   caloriesPer100g: number;
@@ -140,6 +141,11 @@ export const foodAPI = {
 
   async delete(id: string): Promise<{ success: boolean }> {
     const response = await apiClient.delete(`/foods/${id}`);
+    return response.data;
+  },
+
+  async bulkCreate(foods: CreateFoodDTO[]): Promise<{ message: string; count: number; created: number }> {
+    const response = await apiClient.post<{ message: string; count: number; created: number }>('/foods/bulk-create', foods);
     return response.data;
   },
 };
@@ -211,6 +217,101 @@ export const intakeAPI = {
 
   async getHistory(days: number = 30): Promise<HistoryStats[]> {
     const response = await apiClient.get<HistoryStats[]>('/intake/stats/history', { params: { days } });
+    return response.data;
+  },
+};
+
+// ==================== RECIPE API ====================
+
+export interface RecipeIngredientDTO {
+  foodId: string;
+  foodName: string;
+  quantity: number;
+  protein: number;
+  calories: number;
+  foodType: string;
+}
+
+export interface CreateRecipeDTO {
+  id?: string; // Optional for frontend-generated IDs
+  name: string;
+  description?: string;
+  ingredients: RecipeIngredientDTO[];
+  servings: number;
+  prepTime?: number;
+  cookTime?: number;
+  instructions?: string;
+  category?: string;
+  tags?: string[];
+  imageUrl?: string;
+  totalCalories: number;
+  totalProtein: number;
+  caloriesPerServing: number;
+  proteinPerServing: number;
+  foodType: string;
+  createdAt?: number;
+  updatedAt?: number;
+}
+
+export interface UpdateRecipeDTO {
+  name?: string;
+  description?: string;
+  ingredients?: RecipeIngredientDTO[];
+  servings?: number;
+  prepTime?: number;
+  cookTime?: number;
+  instructions?: string;
+  category?: string;
+  tags?: string[];
+  imageUrl?: string;
+  totalCalories?: number;
+  totalProtein?: number;
+  caloriesPerServing?: number;
+  proteinPerServing?: number;
+  foodType?: string;
+}
+
+export interface RecipeStats {
+  totalRecipes: number;
+  byCategory: Record<string, number>;
+  byFoodType: Record<string, number>;
+  avgCaloriesPerServing: number;
+  avgProteinPerServing: number;
+}
+
+export const recipeAPI = {
+  async getAll(params?: { category?: string; foodType?: string; search?: string }): Promise<any[]> {
+    const response = await apiClient.get('/recipes', { params });
+    return response.data;
+  },
+
+  async getById(id: string): Promise<any> {
+    const response = await apiClient.get(`/recipes/${id}`);
+    return response.data;
+  },
+
+  async create(recipe: CreateRecipeDTO): Promise<any> {
+    const response = await apiClient.post('/recipes', recipe);
+    return response.data;
+  },
+
+  async update(id: string, recipe: UpdateRecipeDTO): Promise<any> {
+    const response = await apiClient.patch(`/recipes/${id}`, recipe);
+    return response.data;
+  },
+
+  async delete(id: string): Promise<{ success: boolean }> {
+    const response = await apiClient.delete(`/recipes/${id}`);
+    return response.data;
+  },
+
+  async getStats(): Promise<RecipeStats> {
+    const response = await apiClient.get<RecipeStats>('/recipes/stats');
+    return response.data;
+  },
+
+  async duplicate(id: string, newName: string): Promise<any> {
+    const response = await apiClient.post(`/recipes/${id}/duplicate`, { newName });
     return response.data;
   },
 };

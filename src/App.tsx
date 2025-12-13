@@ -2,6 +2,8 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { Layout } from "~/components/layout/Layout";
 import { HomePage } from "~/pages/HomePage";
+import { AnalyticsPage } from "~/pages/AnalyticsPage";
+import { RecipesPage } from "~/pages/RecipesPage";
 import { SettingsPage } from "~/pages/SettingsPage";
 import { ProfilePage } from "~/pages/ProfilePage";
 import { PreferencesPage } from "~/pages/PreferencesPage";
@@ -37,6 +39,8 @@ function App() {
         element={user ? <Layout /> : <Navigate to="/login" replace />}
       >
         <Route index element={<HomePage />} />
+        <Route path="analytics" element={<AnalyticsPage />} />
+        <Route path="recipes" element={<RecipesPage />} />
         <Route path="settings" element={<SettingsPage />} />
         <Route path="profile" element={<ProfilePage />} />
         <Route path="preferences" element={<PreferencesPage />} />

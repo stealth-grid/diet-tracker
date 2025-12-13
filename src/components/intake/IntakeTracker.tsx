@@ -5,7 +5,7 @@ import { Label } from "~/components/ui/label";
 import { DailySummary } from "./DailySummary";
 import { IntakeList } from "./IntakeList";
 import { AddIntakeDialog } from "./AddIntakeDialog";
-import type { FoodItem, IntakeEntry, DailyGoals, DietPreference } from "~/types";
+import type { FoodItem, IntakeEntry, DailyGoals, DietPreference, Recipe } from "~/types";
 import { getTodayDate, getEntriesByDate, addIntakeEntry, deleteIntakeEntry } from "~/lib/storage";
 import { filterFoodsByDietPreference } from "~/lib/utils";
 import { intakeAPI } from "~/lib/api";
@@ -13,6 +13,7 @@ import { useAuth } from "~/contexts/AuthContext";
 
 interface IntakeTrackerProps {
   foods: FoodItem[];
+  recipes: Recipe[];
   goals: DailyGoals;
   dietPreference: DietPreference;
   userId: string;
@@ -20,7 +21,7 @@ interface IntakeTrackerProps {
   onEntriesChange: () => void;
 }
 
-export function IntakeTracker({ foods, goals, dietPreference, userId, onAddNewFood, onEntriesChange }: IntakeTrackerProps) {
+export function IntakeTracker({ foods, recipes, goals, dietPreference, userId, onAddNewFood, onEntriesChange }: IntakeTrackerProps) {
   const { isAnonymous, hasBackendConfigured } = useAuth();
   const [selectedDate, setSelectedDate] = useState(getTodayDate());
   const [entries, setEntries] = useState<IntakeEntry[]>([]);
@@ -28,7 +29,29 @@ export function IntakeTracker({ foods, goals, dietPreference, userId, onAddNewFo
 
   useEffect(() => {
     loadEntries();
-  }, [selectedDate, isAnonymous, hasBackendConfigured]);
+  }, [selectedDate, isAnonymous, hasBackendConfigured, userId]);
+
+  // Listen for custom events and window focus to refresh data
+  useEffect(() => {
+    const handleRefresh = () => {
+      loadEntries();
+    };
+
+    const handleFocus = () => {
+      loadEntries();
+    };
+
+    // Listen for custom intake update event
+    window.addEventListener('intakeUpdated', handleRefresh);
+    
+    // Also refresh when window regains focus (e.g., switching from Recipes tab)
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      window.removeEventListener('intakeUpdated', handleRefresh);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [selectedDate, userId, isAnonymous, hasBackendConfigured]);
 
   const loadEntries = async () => {
     setLoading(true);
@@ -43,7 +66,7 @@ export function IntakeTracker({ foods, goals, dietPreference, userId, onAddNewFo
         setEntries(data);
       }
     } catch (error) {
-      console.error('Error loading entries:', error);
+      console.error('[IntakeTracker] Error loading entries:', error);
       // Fallback to localStorage
       const data = getEntriesByDate(userId, selectedDate);
       setEntries(data);
@@ -120,7 +143,7 @@ export function IntakeTracker({ foods, goals, dietPreference, userId, onAddNewFo
             max={getTodayDate()}
           />
         </div>
-        <AddIntakeDialog foods={filteredFoods} onAdd={handleAddEntry} onAddNewFood={onAddNewFood} />
+        <AddIntakeDialog foods={filteredFoods} recipes={recipes} onAdd={handleAddEntry} onAddNewFood={onAddNewFood} />
       </div>
 
       <DailySummary totalCalories={totalCalories} totalProtein={totalProtein} goals={goals} />

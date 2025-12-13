@@ -4,12 +4,12 @@ import { IntakeTracker } from "~/components/intake/IntakeTracker";
 import { FoodDatabase } from "~/components/database/FoodDatabase";
 import { MealPlanner } from "~/components/planner/MealPlanner";
 import { useAuth } from "~/contexts/AuthContext";
-import type { FoodItem, DailyGoals, DietPreference } from "~/types";
-import { foodAPI } from "~/lib/api";
-import { initialFoods } from "~/data/initialFoods";
+import type { FoodItem, DailyGoals, DietPreference, Recipe } from "~/types";
+import { initializeFoods } from "~/lib/foodInitialization";
+import { foodAPI, recipeAPI } from "~/lib/api";
+import { getRecipes } from "~/lib/recipeStorage";
 import {
   getFoods,
-  saveFoods,
   addFood,
   deleteFood,
   getGoals,
@@ -20,6 +20,7 @@ import {
 export function HomePage() {
   const { user, userPreferences, isAnonymous, hasBackendConfigured } = useAuth();
   const [foods, setFoods] = useState<FoodItem[]>([]);
+  const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [goals, setGoals] = useState<DailyGoals>({ calorieGoal: 2000, proteinGoal: 50 });
   const [dietPreference, setDietPreference] = useState<DietPreference>("non-vegetarian");
   const [preferredFoodIds, setPreferredFoodIds] = useState<string[]>([]);
@@ -35,16 +36,34 @@ export function HomePage() {
     const loadData = async () => {
       setDataLoading(true);
       try {
-        if (isAnonymous || !hasBackendConfigured) {
-          // Anonymous mode or no backend - use localStorage only
-          const storedFoods = getFoods(user.id);
-          if (storedFoods.length === 0) {
-            saveFoods(user.id, initialFoods);
-            setFoods(initialFoods);
-          } else {
-            setFoods(storedFoods);
-          }
+        // Initialize foods using centralized initialization
+        const result = await initializeFoods({
+          userId: user.id,
+          isAnonymous,
+          hasBackendConfigured,
+        });
+        
+        setFoods(result.foods);
 
+        // Load recipes
+        if (isAnonymous || !hasBackendConfigured) {
+          // Anonymous/offline mode - use localStorage
+          const recipesData = getRecipes(user.id);
+          setRecipes(recipesData);
+        } else {
+          // Authenticated mode - use API
+          try {
+            const recipesData = await recipeAPI.getAll();
+            setRecipes(recipesData);
+          } catch (error) {
+            console.error('[HomePage] Error loading recipes from API, using localStorage:', error);
+            const recipesData = getRecipes(user.id);
+            setRecipes(recipesData);
+          }
+        }
+
+        // Load goals and preferences
+        if (isAnonymous || !hasBackendConfigured) {
           const storedGoals = getGoals(user.id);
           setGoals(storedGoals);
 
@@ -63,15 +82,9 @@ export function HomePage() {
             setDietPreference(userPreferences.dietPreference);
             setPreferredFoodIds(userPreferences.preferredFoodIds);
           }
-
-          const backendFoods = await foodAPI.getAll();
-          setFoods(backendFoods);
         }
       } catch (error) {
-        console.error("Error loading data:", error);
-        // Fallback to localStorage for any user
-        const storedFoods = getFoods(user.id);
-        setFoods(storedFoods.length > 0 ? storedFoods : initialFoods);
+        console.error("[HomePage] Error loading data:", error);
       } finally {
         setDataLoading(false);
       }
@@ -154,6 +167,7 @@ export function HomePage() {
       <TabsContent value="intake" className="mt-0">
         <IntakeTracker
           foods={foods}
+          recipes={recipes}
           goals={goals}
           dietPreference={dietPreference}
           userId={user!.id}
